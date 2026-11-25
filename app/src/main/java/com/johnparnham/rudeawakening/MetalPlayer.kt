@@ -60,6 +60,14 @@ object MetalPlayer {
         try {
             val fd: AssetFileDescriptor = context.assets.openFd("metal/${clip.file}")
             val mp = MediaPlayer()
+            // Alarm stream (v1.6): rings on the alarm volume, not the media
+            // volume, so it still wakes him with media muted.
+            mp.setAudioAttributes(
+                android.media.AudioAttributes.Builder()
+                    .setUsage(android.media.AudioAttributes.USAGE_ALARM)
+                    .setContentType(android.media.AudioAttributes.CONTENT_TYPE_MUSIC)
+                    .build()
+            )
             mp.setDataSource(fd.fileDescriptor, fd.startOffset, fd.length)
             fd.close()
             mp.setOnCompletionListener {

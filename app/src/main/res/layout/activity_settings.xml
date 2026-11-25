@@ -105,7 +105,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Metal clips: “Heavy Metal Riffs – Monolith” by Tri-Tachyon (CC BY), “Cyberpunk Metal” by Bertsz (CC0), “Hard Rock Loop” by BaDoink (CC0), “Heavy Metal” by Rínon Nínqueon (CC BY-SA), “Metal Hunters” by Gangrel (CC BY). Trimmed to 30-second clips."
+            android:text="Metal clips: “Heavy Metal Riffs – Monolith” by Tri-Tachyon (CC BY), “Cyberpunk Metal” by Bertsz (CC0), “Hard Rock Loop” by BaDoink (CC0), “Heavy Metal” by Rínon Nínqueon (CC BY-SA), “Metal Hunters” by Gangrel (CC BY), “Metal Child” by Avenger Kills (CC BY), “So Metal It Hurts” by Daniel Bautista (CC BY), “True Metal Awaits” by Daniel Bautista (CC BY), “Death Metal Tango” by SadClown (CC BY-SA), “Long Live Heavy Metal” by black city (CC BY-SA). Trimmed to 30-second clips."
             android:textSize="12sp"
             android:textColor="#9A9AB0"
             android:layout_marginTop="16dp" />

@@ -15,18 +15,20 @@ and the accelerometer to count shakes. No internet, no login, no account.
   "2 alarms set" status line. **+ Add alarm** for as many alarms as you
   want; tap a card to change its time and repeat days; ON/OFF toggles
   it; ✕ deletes it.
-- **Sound (v1.4): HEAVY METAL, no voices.** The alarm plays 30-second
-  heavy metal clips instead of a spoken voice. The insults still show on
-  screen and rotate every 15 seconds — they just aren't spoken any more.
+- **Sound (v1.4, 10 clips since v1.6): HEAVY METAL, no voices.** The
+  alarm plays 30-second heavy metal clips instead of a spoken voice. The
+  insults still show on screen and rotate every 15 seconds — they just
+  aren't spoken any more. Clips play on the **alarm audio stream**
+  (v1.6), so they ring on the alarm volume even with media muted.
   **Test metal sound** on the home screen plays the saved clip for
   10 seconds.
 - **Customize (v1.4):** the Customize screen picks the metal clip (tap to
   hear it, or Shuffle all), renames the app (the name shown at the top of
   the app — the name under the home-screen icon stays "Rude Awakening",
   Android sets that at install), and changes the background: Pastel,
-  Sunrise, Ocean, Midnight, Blood, Forest, or a photo from the gallery
-  (text goes light or dark to match). Shakes-to-stop and snooze length
-  are here too.
+  Sunrise, Ocean, Midnight, Blood, Forest, Ember, Steel, Toxic (9 presets
+  since v1.6), or a photo from the gallery (text goes light or dark to
+  match). Shakes-to-stop and snooze length are here too.
 - **Set alarm:** pick the time, pick the repeat days, it schedules
   immediately and says what happened on screen (or exactly why it
   failed, e.g. exact-alarm permission not granted).
@@ -69,7 +71,7 @@ Local (same pattern as the TapTalk manual build on this VM):
 
 ```bash
 ./manual-build.sh
-# -> rude-awakening-native-v5.apk (debug-signed, apksigner verified)
+# -> rude-awakening-native-v6.apk (debug-signed, apksigner verified)
 ```
 
 GitHub Actions (`.github/workflows/build-apk.yml`) runs the same script:
@@ -78,6 +80,17 @@ Kotlin 1.9.24, then runs `./manual-build.sh` and uploads the APK.
 
 ## History
 
+- **v1.6 (2026-11-25): 10 metal clips, 3 new backgrounds, alarm stream.**
+  5 more royalty-free metal clips (Metal Child, So Metal It Hurts, True
+  Metal Awaits, Death Metal Tango, Long Live Heavy Metal — CC BY / CC
+  BY-SA, Jamendo via Openverse, trimmed to 30s). 3 new backgrounds:
+  Ember, Steel, Toxic (9 presets total). Clips now play on the alarm
+  audio stream, so they ring on the alarm volume even with media muted.
+  Note: the shake buzz was already in the app since v1.0 (50ms vibrate
+  on every shake, VIBRATE permission in the manifest) — not a v1.6
+  addition. Compose migration: John approved it, but the background
+  build work was stopped/removed before producing anything — do NOT
+  re-attempt it.
 - **v1.5 (2026-11-25): Customize bug fix + industrial redesign.** The
   v1.4 background change did nothing: `BackgroundHelper.apply()` set the
   background on the activity's content parent, but every screen's own

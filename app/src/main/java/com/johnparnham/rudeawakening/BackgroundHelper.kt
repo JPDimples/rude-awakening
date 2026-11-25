@@ -22,18 +22,24 @@ object BackgroundHelper {
     const val MIDNIGHT = "midnight"
     const val BLOOD = "blood"
     const val FOREST = "forest"
+    const val EMBER = "ember"
+    const val STEEL = "steel"
+    const val TOXIC = "toxic"
     const val CUSTOM = "custom"
 
-    val PRESETS = listOf(PASTEL, SUNRISE, OCEAN, MIDNIGHT, BLOOD, FOREST)
+    val PRESETS = listOf(PASTEL, SUNRISE, OCEAN, MIDNIGHT, BLOOD, FOREST, EMBER, STEEL, TOXIC)
     val PRESET_NAMES = mapOf(
         PASTEL to "Pastel",
         SUNRISE to "Sunrise",
         OCEAN to "Ocean",
         MIDNIGHT to "Midnight",
         BLOOD to "Blood",
-        FOREST to "Forest"
+        FOREST to "Forest",
+        EMBER to "Ember",
+        STEEL to "Steel",
+        TOXIC to "Toxic"
     )
-    private val DARK_PRESETS = setOf(MIDNIGHT, BLOOD, FOREST)
+    private val DARK_PRESETS = setOf(MIDNIGHT, BLOOD, FOREST, EMBER, STEEL, TOXIC)
 
     fun getBackground(context: android.content.Context): String =
         AlarmStore.prefs(context).getString(AlarmStore.KEY_BACKGROUND, MIDNIGHT) ?: MIDNIGHT
@@ -53,6 +59,9 @@ object BackgroundHelper {
         MIDNIGHT -> R.drawable.bg_midnight
         BLOOD -> R.drawable.bg_blood
         FOREST -> R.drawable.bg_forest
+        EMBER -> R.drawable.bg_ember
+        STEEL -> R.drawable.bg_steel
+        TOXIC -> R.drawable.bg_toxic
         else -> R.drawable.bg_gradient
     }
 
