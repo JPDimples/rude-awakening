@@ -1,97 +1,63 @@
 # Rude Awakening
 
-An alarm clock that yells insults until you shake it awake. Python + Flet,
-built as an Android APK with GitHub Actions. Debug build only — no Play
-Store, no signing.
+A native Kotlin Android alarm clock that yells insults until you shake it awake.
 
-## What it does (v1)
+No Python, no Flutter — this is the native version. It uses Android's own
+`AlarmManager` for exact alarms, built-in `TextToSpeech` to yell the insults,
+and the accelerometer to count shakes. No internet, no login, no account.
 
-- **Home screen:** big live clock, alarm time picker, set/cancel alarm.
-  The alarm time is saved (SharedPreferences) so it survives a restart.
+## What it does
+
+- **Home screen:** live clock, alarm time picker, set / cancel alarm.
 - **TEST ALARM NOW button:** fires the alarm immediately so you can test
   shake-to-stop without waiting until morning.
 - **Alarm screen:** full-screen dark, huge insult text, shake progress bar,
   `SHAKES: n / 20`.
 - **Insults:** 91 insults supplied by John, used exactly as written. They are
   dealt from a shuffled deck — no repeats until all 91 have been used — and a
-  new one appears every 15 seconds while the alarm is ringing.
-- **Voice:** each insult was pre-generated as an MP3 with edge-tts
-  (`en-US-GuyNeural`, +15% rate, 91/91 clips in `src/assets/voice/`), played
-  through Flet Audio, over a looping alarm tone (`src/assets/alarm.wav`).
-- **Shake to stop: 20 shakes.** Each shake detected by Flet's ShakeDetector
-  counts as 1. At 20 the alarm stops and the home screen says
+  new one appears every 15 seconds while the alarm is ringing, spoken aloud
+  by the phone's text-to-speech voice.
+- **Shake to stop: 20 shakes.** At 20 the alarm stops and says
   "FINALLY. You're up." — and the alarm re-arms for tomorrow.
 - **Snooze: 5 minutes, +5 shakes.** Snoozing makes the next round harder:
   25 shakes, then 30, capped at 40.
-- **Wakelock:** the screen is kept awake while the alarm is ringing.
+- **After reboot:** if the alarm was enabled, it re-arms itself.
 
-## The honest limit — read this
+## Permissions to grant (first run)
 
-**V1 is a foreground alarm.** It fires reliably while the app is left open.
-Android Doze can delay or kill background apps, so v1 is NOT guaranteed to
-fire with the app fully closed. For v1, leave the app open overnight (and
-turn off battery optimization for it if Android offers that).
-
-A native background-service version is the v2 follow-up if v1 proves
-unreliable overnight. Do not rely on v1 as your only alarm for anything
-important until you have tested a real overnight firing.
+- Exact alarm — Android 12+ asks for this. If the app says "NOT GRANTED",
+  tap Set alarm and it opens the system settings for it.
+- Notifications — Android 13+ asks on first open. Needed for the alarm
+  foreground service.
+- Battery optimisation off for the app helps the alarm fire on time.
 
 ## Test it on the phone (Galaxy S25+)
 
-1. Install the APK (tap the file, allow "Install unknown apps" for the app
-   you open it from, then Install).
-2. Open **Rude Awakening**.
-3. Tap **TEST ALARM NOW** first — do not wait for morning to find out
-   whether shake works.
-4. It should start yelling an insult out loud. **Shake the phone 20 times.**
-   Watch the counter climb to `SHAKES: 20 / 20` — the alarm stops.
-5. Try **SNOOZE**: it stops, waits 5 minutes, then fires again needing
-   25 shakes.
-6. Then set a real alarm time a few minutes ahead, leave the app OPEN, and
-   check it fires.
+1. Install the APK (allow "Install unknown apps" for the app you open it from).
+2. Open Rude Awakening, grant notifications.
+3. Tap **TEST ALARM NOW**.
+4. Shake the phone 20 times. Watch the counter climb to 20 — then silence.
+5. Try Snooze once: next round needs 25 shakes.
 
-## Rebuild
+Do not rely on it as your only alarm for anything important until you have
+tested a real overnight firing.
 
-Push to `main` and GitHub Actions builds the APK (first build downloads the
-Flutter SDK and takes ~15 minutes):
+## Build
+
+Local (same pattern as the TapTalk manual build on this VM):
 
 ```bash
-git push origin main
-gh run list --repo JPDimples/rude-awakening
-gh run download <run-id> --repo JPDimples/rude-awakening
+./manual-build.sh
+# -> rude-awakening-native-v1.apk (debug-signed, apksigner verified)
 ```
 
-Local checks (no phone needed):
+GitHub Actions (`.github/workflows/build-apk.yml`) runs the same script:
+it installs JDK 17, the Android SDK (platform 34, build-tools 34.0.0) and
+Kotlin 1.9.24, then runs `./manual-build.sh` and uploads the APK.
 
-```bash
-python3 -m py_compile src/main.py src/alarm_logic.py
-python3 tests/test_logic.py
-```
+## History
 
-Regenerate the voice clips (needs internet — edge-tts talks to Microsoft):
-
-```bash
-pip install edge-tts
-python tools/generate_voice.py
-```
-
-## Files
-
-- `src/main.py` — the Flet app (home screen, alarm screen, shake, audio).
-- `src/alarm_logic.py` — pure logic: insult deck, shake counter, scheduling.
-  No Flet imports, covered by `tests/test_logic.py`.
-- `src/assets/insults.json` — the 91 insults, exactly as supplied.
-- `src/assets/voice/*.mp3` — 91 pre-generated spoken insults + manifest.
-- `src/assets/alarm.wav` — looping alarm tone.
-- `tools/generate_voice.py` — regenerates the voice clips.
-- `.github/workflows/build-apk.yml` — GitHub Actions APK build.
-
-## Notes on the Flet version
-
-Built against Flet **1.1.3**. Two things changed from older Flet guides:
-
-- `page.client_storage` no longer exists — persistence uses the
-  `SharedPreferences` service instead.
-- `Audio` lives in the separate `flet-audio` package (`import flet_audio`),
-  and `ShakeDetector` / `Wakelock` / `Audio` are all added to
-  `page.services` (not `page.overlay`).
+- `flet-v1` branch: the earlier Python + Flet version, preserved as-is,
+  including its 91 pre-generated voice MP3s. The native version replaces
+  those with live Android TextToSpeech.
+- Package: `com.johnparnham.rudeawakening`, compile/target SDK 34, min SDK 26.
