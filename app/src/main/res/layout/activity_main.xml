@@ -4,7 +4,6 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:padding="24dp"
-    android:gravity="center_horizontal"
     android:background="@drawable/bg_gradient">
 
     <TextView
@@ -18,65 +17,52 @@
         android:layout_marginTop="16dp" />
 
     <TextView
+        android:id="@+id/clockText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="--:--"
+        android:textSize="18sp"
+        android:textColor="#8A8A9A"
+        android:layout_marginTop="4dp" />
+
+    <TextView
         android:id="@+id/statusText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="All alarms are off"
         android:textSize="20sp"
         android:textColor="#8A8A9A"
-        android:layout_marginTop="8dp" />
+        android:layout_marginTop="4dp" />
 
-    <LinearLayout
+    <ScrollView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="@drawable/card_bg"
-        android:padding="20dp"
-        android:layout_marginTop="24dp">
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="16dp">
 
-        <TextView
-            android:id="@+id/clockText"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/alarmListContainer"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="--:--"
-            android:textSize="56sp"
-            android:textColor="#9A9AB0"
-            android:textStyle="bold" />
+            android:orientation="vertical" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="S   M   T   W   T   F   S"
-            android:textSize="16sp"
-            android:textColor="#B0B0C0"
-            android:layout_marginTop="8dp" />
-
-        <TextView
-            android:id="@+id/nextAlarmText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="No alarm set"
-            android:textSize="16sp"
-            android:textColor="#8A8A9A"
-            android:layout_marginTop="8dp" />
-
-    </LinearLayout>
+    </ScrollView>
 
     <Button
-        android:id="@+id/setAlarmButton"
+        android:id="@+id/addAlarmButton"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:text="Set alarm"
+        android:text="+ Add alarm"
         android:textSize="16sp"
         android:textColor="#55556A"
         android:background="@drawable/button_bg"
-        android:layout_marginTop="24dp" />
+        android:layout_marginTop="16dp" />
 
     <Button
-        android:id="@+id/setTimeButton"
+        android:id="@+id/settingsButton"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:text="Change alarm time"
+        android:text="Settings"
         android:textSize="16sp"
         android:textColor="#55556A"
         android:background="@drawable/button_bg"
@@ -86,7 +72,7 @@
         android:id="@+id/testVoiceButton"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:text="Test male voice"
+        android:text="Test voice"
         android:textSize="16sp"
         android:textColor="#55556A"
         android:background="@drawable/button_bg"
@@ -97,16 +83,6 @@
         android:layout_width="match_parent"
         android:layout_height="56dp"
         android:text="TEST ALARM NOW"
-        android:textSize="16sp"
-        android:textColor="#55556A"
-        android:background="@drawable/button_bg"
-        android:layout_marginTop="12dp" />
-
-    <Button
-        android:id="@+id/cancelAlarmButton"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:text="Cancel alarm"
         android:textSize="16sp"
         android:textColor="#55556A"
         android:background="@drawable/button_bg"
@@ -143,7 +119,7 @@
         android:id="@+id/infoText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="20 shakes to shut it up. Snooze = +5 shakes."
+        android:text="Tap an alarm to change its time and days."
         android:textSize="14sp"
         android:textColor="#9A9AB0"
         android:layout_marginTop="8dp" />

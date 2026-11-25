@@ -1,15 +1,19 @@
 package com.johnparnham.rudeawakening
 
+import android.content.Context
 import android.speech.tts.TextToSpeech
 import android.speech.tts.Voice
 import java.util.Locale
 
 /**
- * Picks a MALE English voice for the insults.
- * v1 used the phone's default voice, which on John's S25+ was female —
- * he wants a male voice. We score every installed English voice by name
- * and features, preferring ones that say "male", and deepen the pitch a
- * little as a fallback. Returns the voice name picked (or "default").
+ * Voice picking for the insults.
+ *
+ * v1.1 tried to guess a male voice from the voice names and got it wrong on
+ * John's S25+ — Samsung's voices don't say "male" in their names, so the
+ * guess fell back to the default (female) voice. v1.3 stops guessing: the
+ * Settings screen lists every installed English voice and John taps the
+ * one he wants to hear. The guess below is now only a fallback when no
+ * voice has been picked yet.
  */
 object VoiceHelper {
 
@@ -22,13 +26,18 @@ object VoiceHelper {
         "emma", "olivia", "sophia", "ava", "female"
     )
 
-    fun selectMaleVoice(tts: TextToSpeech): Voice? {
+    fun listEnglishVoices(tts: TextToSpeech): List<Voice> {
         val voices: List<Voice> = try {
             tts.voices?.toList() ?: emptyList()
         } catch (e: Exception) {
             emptyList()
         }
-        val en = voices.filter { it.locale.language == "en" }
+        return voices.filter { it.locale.language == "en" }
+            .sortedBy { it.name.lowercase(Locale.US) }
+    }
+
+    fun selectMaleVoice(tts: TextToSpeech): Voice? {
+        val en = listEnglishVoices(tts)
         if (en.isEmpty()) return null
         fun score(v: Voice): Int {
             val name = v.name.lowercase(Locale.US)
@@ -46,15 +55,29 @@ object VoiceHelper {
         return if (score(best) >= 0) best else null
     }
 
-    /** Apply the male voice (if one is found) + a slightly deeper pitch. */
-    fun applyMaleVoice(tts: TextToSpeech): String {
+    /**
+     * Apply John's saved voice if he picked one in Settings, else the male
+     * guess. Returns the name of the voice actually used (or "default").
+     */
+    fun applyVoice(tts: TextToSpeech, context: Context): String {
         tts.language = Locale.US
-        val voice = selectMaleVoice(tts)
-        if (voice != null) {
-            try { tts.voice = voice } catch (e: Exception) { }
+        val stored = AlarmStore.getVoiceName(context)
+        val voices = try { tts.voices?.toList() ?: emptyList() } catch (e: Exception) { emptyList() }
+        val chosen = stored?.let { name -> voices.firstOrNull { it.name == name } }
+            ?: selectMaleVoice(tts)
+        if (chosen != null) {
+            try { tts.voice = chosen } catch (e: Exception) { }
         }
-        tts.setSpeechRate(1.05f)
-        tts.setPitch(0.85f)
-        return voice?.name ?: "default voice"
+        tts.setSpeechRate(1.0f)
+        tts.setPitch(0.8f)
+        return chosen?.name ?: "default voice"
+    }
+
+    /** Apply one exact voice (used by the Settings preview). */
+    fun applyVoiceTo(tts: TextToSpeech, voice: Voice): String {
+        try { tts.voice = voice } catch (e: Exception) { }
+        tts.setSpeechRate(1.0f)
+        tts.setPitch(0.8f)
+        return voice.name
     }
 }

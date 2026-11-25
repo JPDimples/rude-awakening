@@ -28,6 +28,7 @@ class AlarmActivity : Activity() {
     private var shakes = 0
     private var shakesRequired = AlarmStore.DEFAULT_SHAKES
     private var finished = false
+    private var alarmId: Long = -1L
 
     private val handler = Handler(Looper.getMainLooper())
     private val insultRunnable = object : Runnable {
@@ -45,6 +46,8 @@ class AlarmActivity : Activity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         setContentView(R.layout.activity_alarm)
 
+        alarmId = intent.getLongExtra(AlarmScheduler.EXTRA_ALARM_ID, -1L)
+
         insultText = findViewById(R.id.insultText)
         shakesText = findViewById(R.id.shakesText)
         shakeProgress = findViewById(R.id.shakeProgress)
@@ -57,8 +60,8 @@ class AlarmActivity : Activity() {
 
         tts = TextToSpeech(this) { status ->
             if (status == TextToSpeech.SUCCESS) {
-                // Male voice (v2): v1 used the phone default, which was female.
-                val voiceName = VoiceHelper.applyMaleVoice(tts!!)
+                // v1.3: John's saved voice from Settings, else the male guess.
+                val voiceName = VoiceHelper.applyVoice(tts!!, this@AlarmActivity)
                 try { findViewById<TextView>(R.id.voiceText).text = "Voice: $voiceName" } catch (e: Exception) { }
                 showNextInsult()
             }
@@ -68,7 +71,10 @@ class AlarmActivity : Activity() {
         shakeDetector = ShakeDetector { onShake() }
         ShakeDetector.register(sensorManager!!, shakeDetector!!)
 
-        findViewById<Button>(R.id.snoozeButton).setOnClickListener { snooze() }
+        findViewById<Button>(R.id.snoozeButton).apply {
+            text = "Snooze ${AlarmStore.getSnoozeMinutes(this@AlarmActivity)} min (+5 shakes)"
+            setOnClickListener { snooze() }
+        }
 
         handler.postDelayed(insultRunnable, INSULT_INTERVAL_MS)
     }
@@ -133,10 +139,19 @@ class AlarmActivity : Activity() {
         handler.removeCallbacks(insultRunnable)
         val nextRequired = (shakesRequired + 5).coerceAtMost(AlarmStore.MAX_SHAKES)
         AlarmStore.setShakesRequired(this, nextRequired)
-        AlarmScheduler.scheduleAt(this, System.currentTimeMillis() + AlarmStore.SNOOZE_MINUTES * 60 * 1000L)
+        // Test alarms (TEST ALARM NOW) have no stored alarm; snooze them as a
+        // one-off with a throwaway id so they still ring again in 5 minutes.
+        val alarm = currentAlarm() ?: Alarm(-1L, 0, 0, false, 0)
+        AlarmScheduler.scheduleAt(
+            this, alarm,
+            System.currentTimeMillis() + AlarmStore.getSnoozeMinutes(this) * 60 * 1000L
+        )
         AlarmService.stop(this)
         finish()
     }
+
+    private fun currentAlarm(): Alarm? =
+        if (alarmId == -1L) null else AlarmStore.getAlarm(this, alarmId)
 
     private fun finishAlarm() {
         if (finished) return
@@ -145,9 +160,11 @@ class AlarmActivity : Activity() {
         try { tts?.stop() } catch (e: Exception) { }
         AlarmService.stop(this)
         AlarmStore.resetShakes(this)
-        // Re-arm for tomorrow if the alarm is still enabled.
-        if (AlarmStore.isEnabled(this)) {
-            AlarmScheduler.schedule(this)
+        // Repeating alarms were already re-armed by the receiver when they
+        // fired; this is a belt-and-braces re-arm for the alarm that rang.
+        val alarm = currentAlarm()
+        if (alarm != null && alarm.enabled && alarm.days != 0) {
+            AlarmScheduler.schedule(this, alarm)
         }
         insultText.text = "FINALLY. You're up."
         handler.postDelayed({ finish() }, 1500)

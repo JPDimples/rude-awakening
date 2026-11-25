@@ -3,6 +3,7 @@ package com.johnparnham.rudeawakening
 import android.Manifest
 import android.app.Activity
 import android.app.AlarmManager
+import android.app.AlertDialog
 import android.app.TimePickerDialog
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -13,7 +14,10 @@ import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
 import android.speech.tts.TextToSpeech
+import android.view.View
 import android.widget.Button
+import android.widget.LinearLayout
+import android.widget.Switch
 import android.widget.TextView
 import android.widget.Toast
 import java.text.SimpleDateFormat
@@ -23,16 +27,16 @@ import java.util.Locale
 class MainActivity : Activity() {
 
     private lateinit var clockText: TextView
-    private lateinit var nextAlarmText: TextView
-    private lateinit var permissionText: TextView
     private lateinit var statusText: TextView
+    private lateinit var alarmListContainer: LinearLayout
+    private lateinit var permissionText: TextView
     private lateinit var statusLogText: TextView
     private lateinit var voiceText: TextView
     private var testTts: TextToSpeech? = null
     private val clockHandler = Handler(Looper.getMainLooper())
     private val clockRunnable = object : Runnable {
         override fun run() {
-            clockText.text = SimpleDateFormat("HH:mm", Locale.getDefault()).format(Date())
+            clockText.text = SimpleDateFormat("h:mm a", Locale.getDefault()).format(Date())
             clockHandler.postDelayed(this, 1000)
         }
     }
@@ -42,56 +46,30 @@ class MainActivity : Activity() {
         setContentView(R.layout.activity_main)
 
         clockText = findViewById(R.id.clockText)
-        nextAlarmText = findViewById(R.id.nextAlarmText)
-        permissionText = findViewById(R.id.permissionText)
         statusText = findViewById(R.id.statusText)
+        alarmListContainer = findViewById(R.id.alarmListContainer)
+        permissionText = findViewById(R.id.permissionText)
         statusLogText = findViewById(R.id.statusLogText)
         voiceText = findViewById(R.id.voiceText)
 
-        // SET ALARM — one tap: pick the time, then it schedules immediately.
-        // v1 split this into two buttons and gave no feedback, so it looked
-        // like nothing happened when the exact-alarm permission was missing.
-        findViewById<Button>(R.id.setAlarmButton).setOnClickListener {
-            openTimePicker { hour, minute ->
-                AlarmStore.saveTime(this, hour, minute)
-                trySchedule()
-            }
+        findViewById<Button>(R.id.addAlarmButton).setOnClickListener { addAlarm() }
+        findViewById<Button>(R.id.settingsButton).setOnClickListener {
+            startActivity(Intent(this, SettingsActivity::class.java))
         }
-
-        findViewById<Button>(R.id.setTimeButton).setOnClickListener {
-            openTimePicker { hour, minute ->
-                AlarmStore.saveTime(this, hour, minute)
-                updateNextAlarm()
-                Toast.makeText(this, "Alarm time set to ${formatTime(hour, minute)}", Toast.LENGTH_SHORT).show()
-                logStatus("Time changed to ${formatTime(hour, minute)} — tap Set alarm to arm it.")
-            }
-        }
-
-        findViewById<Button>(R.id.testVoiceButton).setOnClickListener {
-            testMaleVoice()
-        }
-
-        findViewById<Button>(R.id.cancelAlarmButton).setOnClickListener {
-            AlarmScheduler.cancel(this)
-            AlarmStore.setEnabled(this, false)
-            updateNextAlarm()
-            Toast.makeText(this, "Alarm cancelled", Toast.LENGTH_SHORT).show()
-            logStatus("Alarm cancelled.")
-        }
-
+        findViewById<Button>(R.id.testVoiceButton).setOnClickListener { testVoice() }
         findViewById<Button>(R.id.testAlarmButton).setOnClickListener {
             startActivity(Intent(this, AlarmActivity::class.java))
         }
 
         requestNotificationPermission()
         clockHandler.post(clockRunnable)
-        updateNextAlarm()
+        refreshAlarms()
         updatePermissions()
     }
 
     override fun onResume() {
         super.onResume()
-        updateNextAlarm()
+        refreshAlarms()
         updatePermissions()
     }
 
@@ -101,49 +79,199 @@ class MainActivity : Activity() {
         super.onDestroy()
     }
 
-    private fun openTimePicker(onPicked: (Int, Int) -> Unit) {
+    /** Rebuild the alarm cards from storage. */
+    private fun refreshAlarms() {
+        alarmListContainer.removeAllViews()
+        val alarms = AlarmStore.getAlarms(this)
+            .sortedWith(compareBy({ it.hour }, { it.minute }))
+        if (alarms.isEmpty()) {
+            val empty = TextView(this).apply {
+                text = "No alarms yet — tap + Add alarm."
+                textSize = 16f
+                setTextColor(0xFF8A8A9A.toInt())
+                setPadding(8, 24, 8, 24)
+            }
+            alarmListContainer.addView(empty)
+        }
+        for (alarm in alarms) {
+            alarmListContainer.addView(buildAlarmCard(alarm))
+        }
+        val enabled = alarms.count { it.enabled }
+        statusText.text = if (enabled == 0) "All alarms are off"
+            else "$enabled alarm${if (enabled == 1) "" else "s"} set"
+        val savedVoice = AlarmStore.getVoiceName(this)
+        voiceText.text = if (savedVoice != null) "Voice: $savedVoice"
+            else "Voice: not picked yet — open Settings to choose one"
+    }
+
+    private fun buildAlarmCard(alarm: Alarm): View {
+        val card = layoutInflater.inflate(R.layout.alarm_card, alarmListContainer, false)
+        card.findViewById<TextView>(R.id.cardTimeText).text = alarm.timeString()
+        card.findViewById<TextView>(R.id.cardDaysText).text =
+            AlarmStore.daysToString(alarm.days)
+        val toggle = card.findViewById<Switch>(R.id.cardToggle)
+        toggle.isChecked = alarm.enabled
+        toggle.setOnCheckedChangeListener { _, checked ->
+            onToggleAlarm(alarm, checked)
+        }
+        card.setOnClickListener { editAlarm(alarm) }
+        card.findViewById<Button>(R.id.cardDeleteButton).setOnClickListener {
+            AlarmScheduler.cancel(this, alarm)
+            AlarmStore.deleteAlarm(this, alarm.id)
+            refreshAlarms()
+            Toast.makeText(this, "Alarm deleted", Toast.LENGTH_SHORT).show()
+        }
+        return card
+    }
+
+    private fun onToggleAlarm(alarm: Alarm, checked: Boolean) {
+        if (checked) {
+            if (!canScheduleExactAlarms()) {
+                Toast.makeText(
+                    this, "Exact alarm permission needed — opening settings",
+                    Toast.LENGTH_LONG
+                ).show()
+                logStatus("Switch-on FAILED: exact alarm permission NOT granted. Grant it, then switch the alarm on.")
+                openExactAlarmSettings()
+                refreshAlarms()
+                return
+            }
+            val updated = alarm.copy(enabled = true)
+            if (AlarmScheduler.schedule(this, updated)) {
+                AlarmStore.updateAlarm(this, updated)
+                AlarmStore.resetShakes(this)
+                Toast.makeText(
+                    this, "Alarm set for ${alarm.timeString()}", Toast.LENGTH_SHORT
+                ).show()
+                logStatus("Alarm set for ${alarm.timeString()} (${AlarmStore.daysToString(alarm.days)}).")
+            } else {
+                logStatus("Alarm FAILED: the system refused it. Screenshot this screen and send it to Jason.")
+                Toast.makeText(this, "Alarm was refused by the system", Toast.LENGTH_LONG).show()
+            }
+        } else {
+            AlarmScheduler.cancel(this, alarm)
+            AlarmStore.updateAlarm(this, alarm.copy(enabled = false))
+            logStatus("Alarm ${alarm.timeString()} switched off.")
+        }
+        refreshAlarms()
+        updatePermissions()
+    }
+
+    private fun addAlarm() {
+        openTimePicker(7, 0) { hour, minute ->
+            showDaysDialog(AlarmStore.ALL_DAYS, false, { days ->
+                val alarm = Alarm(AlarmStore.newAlarmId(this), hour, minute, true, days)
+                if (!canScheduleExactAlarms()) {
+                    AlarmStore.addAlarm(this, alarm.copy(enabled = false))
+                    refreshAlarms()
+                    Toast.makeText(
+                        this, "Exact alarm permission needed — alarm saved but off",
+                        Toast.LENGTH_LONG
+                    ).show()
+                    logStatus("Alarm saved but OFF: exact alarm permission NOT granted. Grant it, then switch the alarm on.")
+                    openExactAlarmSettings()
+                    return@showDaysDialog
+                }
+                if (AlarmScheduler.schedule(this, alarm)) {
+                    AlarmStore.addAlarm(this, alarm)
+                    AlarmStore.resetShakes(this)
+                    Toast.makeText(
+                        this, "Alarm set for ${alarm.timeString()}", Toast.LENGTH_LONG
+                    ).show()
+                    logStatus("Alarm set for ${alarm.timeString()} (${AlarmStore.daysToString(days)}).")
+                } else {
+                    AlarmStore.addAlarm(this, alarm.copy(enabled = false))
+                    logStatus("Alarm FAILED: the system refused it. Screenshot this screen and send it to Jason.")
+                }
+                refreshAlarms()
+                updatePermissions()
+            }, null)
+        }
+    }
+
+    private fun editAlarm(alarm: Alarm) {
+        openTimePicker(alarm.hour, alarm.minute) { hour, minute ->
+            showDaysDialog(alarm.days, true, { days ->
+                AlarmScheduler.cancel(this, alarm)
+                val updated = alarm.copy(hour = hour, minute = minute, days = days)
+                AlarmStore.updateAlarm(this, updated)
+                if (updated.enabled) {
+                    if (AlarmScheduler.schedule(this, updated)) {
+                        Toast.makeText(
+                            this, "Alarm updated to ${updated.timeString()}",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        logStatus("Alarm updated to ${updated.timeString()} (${AlarmStore.daysToString(days)}).")
+                    } else {
+                        AlarmStore.updateAlarm(this, updated.copy(enabled = false))
+                        logStatus("Alarm update FAILED: the system refused it.")
+                    }
+                }
+                refreshAlarms()
+            }, {
+                AlarmScheduler.cancel(this, alarm)
+                AlarmStore.deleteAlarm(this, alarm.id)
+                refreshAlarms()
+                Toast.makeText(this, "Alarm deleted", Toast.LENGTH_SHORT).show()
+            })
+        }
+    }
+
+    /** Days picker. onDelete is only offered when editing an existing alarm. */
+    private fun showDaysDialog(
+        currentDays: Int,
+        allowDelete: Boolean,
+        onPicked: (Int) -> Unit,
+        onDelete: (() -> Unit)?
+    ) {
+        val dayNames = arrayOf(
+            "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"
+        )
+        val checked = BooleanArray(7) { i -> currentDays and (1 shl i) != 0 }
+        val builder = AlertDialog.Builder(this)
+            .setTitle("Repeat days")
+            .setMultiChoiceItems(dayNames, checked) { _, which, isChecked ->
+                checked[which] = isChecked
+            }
+            .setPositiveButton("Save") { _, _ ->
+                var mask = 0
+                for (i in 0..6) if (checked[i]) mask = mask or (1 shl i)
+                onPicked(mask)
+            }
+            .setNegativeButton("Cancel", null)
+        if (allowDelete && onDelete != null) {
+            builder.setNeutralButton("Delete") { _, _ -> onDelete() }
+        }
+        builder.show()
+    }
+
+    private fun openTimePicker(
+        defaultHour: Int,
+        defaultMinute: Int,
+        onPicked: (Int, Int) -> Unit
+    ) {
         TimePickerDialog(
             this,
             { _, hour, minute -> onPicked(hour, minute) },
-            AlarmStore.getHour(this), AlarmStore.getMinute(this), false
+            defaultHour, defaultMinute, false
         ).show()
     }
 
-    /** Schedule the alarm and say, on screen, exactly what happened. */
-    private fun trySchedule() {
-        val hour = AlarmStore.getHour(this)
-        val minute = AlarmStore.getMinute(this)
-        if (!canScheduleExactAlarms()) {
-            logStatus("Set alarm tapped at ${formatTime(hour, minute)} — FAILED: exact alarm permission NOT granted. Opening settings; grant it, come back, tap Set alarm again.")
-            Toast.makeText(this, "Exact alarm permission needed — opening settings", Toast.LENGTH_LONG).show()
-            val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
-                data = Uri.parse("package:$packageName")
-            }
-            try { startActivity(intent) } catch (e: Exception) { }
-            updatePermissions()
-            return
+    private fun openExactAlarmSettings() {
+        val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM).apply {
+            data = Uri.parse("package:$packageName")
         }
-        val ok = AlarmScheduler.schedule(this)
-        if (ok) {
-            AlarmStore.setEnabled(this, true)
-            AlarmStore.resetShakes(this)
-            updateNextAlarm()
-            updatePermissions()
-            Toast.makeText(this, "Alarm set for ${formatTime(hour, minute)}", Toast.LENGTH_LONG).show()
-            logStatus("Alarm set for ${formatTime(hour, minute)} — the system accepted it.")
-        } else {
-            logStatus("Set alarm FAILED: the system refused the alarm. Screenshot this screen and send it to Jason.")
-            Toast.makeText(this, "Alarm was refused by the system — see the message on screen", Toast.LENGTH_LONG).show()
-        }
+        try { startActivity(intent) } catch (e: Exception) { }
+        updatePermissions()
     }
 
-    /** Speaks one insult with the male voice, so John can hear it right now. */
-    private fun testMaleVoice() {
+    /** Speaks one insult with the saved (or guessed) voice, right now. */
+    private fun testVoice() {
         try { testTts?.stop(); testTts?.shutdown() } catch (e: Exception) { }
-        Toast.makeText(this, "Testing male voice…", Toast.LENGTH_SHORT).show()
+        Toast.makeText(this, "Testing voice…", Toast.LENGTH_SHORT).show()
         testTts = TextToSpeech(this) { status ->
             if (status == TextToSpeech.SUCCESS) {
-                val name = VoiceHelper.applyMaleVoice(testTts!!)
+                val name = VoiceHelper.applyVoice(testTts!!, this)
                 voiceText.text = "Voice: $name"
                 logStatus("Test voice: $name")
                 try {
@@ -175,27 +303,8 @@ class MainActivity : Activity() {
         }
     }
 
-    private fun formatTime(hour: Int, minute: Int): String {
-        val ampm = if (hour < 12) "a.m." else "p.m."
-        val h12 = if (hour % 12 == 0) 12 else hour % 12
-        return "$h12:${String.format(Locale.getDefault(), "%02d", minute)} $ampm"
-    }
-
     private fun logStatus(msg: String) {
         statusLogText.text = msg
-    }
-
-    private fun updateNextAlarm() {
-        val hour = AlarmStore.getHour(this)
-        val minute = AlarmStore.getMinute(this)
-        val time = formatTime(hour, minute)
-        if (AlarmStore.isEnabled(this)) {
-            statusText.text = "Alarm set for $time"
-            nextAlarmText.text = "Alarm set for $time — 20 shakes to stop"
-        } else {
-            statusText.text = "All alarms are off"
-            nextAlarmText.text = "Alarm time: $time (not set)"
-        }
     }
 
     private fun updatePermissions() {

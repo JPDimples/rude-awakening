@@ -8,18 +8,17 @@ and the accelerometer to count shakes. No internet, no login, no account.
 
 ## What it does
 
-- **Home screen (Samsung Clock style, v1.1):** light pastel gradient,
-  big soft-grey time in a white rounded card, "All alarms are off" /
-  "Alarm set for 7:00 a.m." status line, days row.
-- **Voice (v1.1): MALE.** The insults are spoken with a male English voice
-  (picked from the phone's installed voices, pitch deepened a little).
-  **Test male voice** button speaks one insult so you can hear it now —
-  the screen also shows which voice it picked.
-- **Set alarm (v1.1 fix):** one tap — pick the time, it schedules
-  immediately, and the screen says "Alarm set for 7:00 a.m." (or exactly
-  why it failed, e.g. exact-alarm permission not granted). v1 split this
-  across two buttons with no feedback, so a missing permission looked
-  like a dead button.
+- **Home screen (Samsung Clock style):** light pastel gradient, white
+  rounded alarm cards, "All alarms are off" / "2 alarms set" status line.
+  **+ Add alarm** for as many alarms as you want; tap a card to change
+  its time and repeat days; switch toggles it; ✕ deletes it.
+- **Voice (v1.3): pick it yourself in Settings.** The Settings screen
+  lists every installed English voice — tap one to hear an insult in it
+  and save it. **Test voice** on the home screen speaks one insult with
+  the saved voice.
+- **Set alarm:** pick the time, pick the repeat days, it schedules
+  immediately and says what happened on screen (or exactly why it
+  failed, e.g. exact-alarm permission not granted).
 - **TEST ALARM NOW button:** fires the alarm immediately so you can test
   shake-to-stop without waiting until morning.
 - **Alarm screen:** light pastel, huge insult text, shake progress bar,
@@ -59,7 +58,7 @@ Local (same pattern as the TapTalk manual build on this VM):
 
 ```bash
 ./manual-build.sh
-# -> rude-awakening-native-v2.1.apk (debug-signed, apksigner verified)
+# -> rude-awakening-native-v3.apk (debug-signed, apksigner verified)
 ```
 
 GitHub Actions (`.github/workflows/build-apk.yml`) runs the same script:
@@ -68,6 +67,16 @@ Kotlin 1.9.24, then runs `./manual-build.sh` and uploads the APK.
 
 ## History
 
+- **v1.3 (2026-11-25): multiple alarms + Settings.** Home screen now lists
+  alarm cards (Samsung Clock style) — tap **+ Add alarm**, tap a card to
+  change its time and repeat days (Sun–Sat checkboxes, per alarm), switch
+  toggles it on/off, ✕ deletes it. One-time alarms switch themselves off
+  after firing; repeating alarms re-arm for their next day. **Settings**
+  screen lists every installed English voice — tap one to hear an insult
+  in it and save it (the v1.1 male-voice guess was wrong on Samsung, whose
+  voices don't say "male" in their names, so guessing is gone — John
+  picks). Settings also has shakes-to-stop (10–40) and snooze length
+  (5/10/15 min). Old v1.x single alarm migrates to one every-day alarm.
 - **v1.2 crash fix (2026-11-25):** v1.1 would not open at all. Cause: the
   pastel background file used a bare `<gradient>` as its root element.
   That compiles fine in aapt2 but Android cannot inflate it as a drawable,
