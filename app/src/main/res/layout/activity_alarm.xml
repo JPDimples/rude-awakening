@@ -68,7 +68,7 @@
         android:layout_marginTop="48dp" />
 
     <TextView
-        android:id="@+id/voiceText"
+        android:id="@+id/soundText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text=""

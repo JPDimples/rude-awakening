@@ -12,10 +12,18 @@ and the accelerometer to count shakes. No internet, no login, no account.
   rounded alarm cards, "All alarms are off" / "2 alarms set" status line.
   **+ Add alarm** for as many alarms as you want; tap a card to change
   its time and repeat days; switch toggles it; ✕ deletes it.
-- **Voice (v1.3): pick it yourself in Settings.** The Settings screen
-  lists every installed English voice — tap one to hear an insult in it
-  and save it. **Test voice** on the home screen speaks one insult with
-  the saved voice.
+- **Sound (v1.4): HEAVY METAL, no voices.** The alarm plays 30-second
+  heavy metal clips instead of a spoken voice. The insults still show on
+  screen and rotate every 15 seconds — they just aren't spoken any more.
+  **Test metal sound** on the home screen plays the saved clip for
+  10 seconds.
+- **Customize (v1.4):** the Customize screen picks the metal clip (tap to
+  hear it, or Shuffle all), renames the app (the name shown at the top of
+  the app — the name under the home-screen icon stays "Rude Awakening",
+  Android sets that at install), and changes the background: Pastel,
+  Sunrise, Ocean, Midnight, Blood, Forest, or a photo from the gallery
+  (text goes light or dark to match). Shakes-to-stop and snooze length
+  are here too.
 - **Set alarm:** pick the time, pick the repeat days, it schedules
   immediately and says what happened on screen (or exactly why it
   failed, e.g. exact-alarm permission not granted).
@@ -58,7 +66,7 @@ Local (same pattern as the TapTalk manual build on this VM):
 
 ```bash
 ./manual-build.sh
-# -> rude-awakening-native-v3.apk (debug-signed, apksigner verified)
+# -> rude-awakening-native-v4.apk (debug-signed, apksigner verified)
 ```
 
 GitHub Actions (`.github/workflows/build-apk.yml`) runs the same script:
@@ -67,6 +75,17 @@ Kotlin 1.9.24, then runs `./manual-build.sh` and uploads the APK.
 
 ## History
 
+- **v1.4 (2026-11-25): heavy metal instead of voices + Customize.**
+  John hated all the voices, so text-to-speech is gone entirely. The
+  alarm now plays one of 5 royalty-free heavy metal clips (30 seconds
+  each, bundled in the app) — pick one in Customize or Shuffle all.
+  Customize also renames the app and changes the background (6 presets
+  or a gallery photo, with light/dark text to match). Pixabay was
+  blocked from this machine (403), so the clips came from Openverse /
+  Freesound / Jamendo instead. Credits: “Heavy Metal Riffs – Monolith”
+  by Tri-Tachyon (CC BY), “Cyberpunk Metal” by Bertsz (CC0), “Hard Rock
+  Loop” by BaDoink (CC0), “Heavy Metal” by Rínon Nínqueon (CC BY-SA),
+  “Metal Hunters” by Gangrel (CC BY) — all trimmed to 30s.
 - **v1.3 (2026-11-25): multiple alarms + Settings.** Home screen now lists
   alarm cards (Samsung Clock style) — tap **+ Add alarm**, tap a card to
   change its time and repeat days (Sun–Sat checkboxes, per alarm), switch

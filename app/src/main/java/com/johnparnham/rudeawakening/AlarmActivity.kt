@@ -9,7 +9,6 @@ import android.os.Handler
 import android.os.Looper
 import android.os.VibrationEffect
 import android.os.Vibrator
-import android.speech.tts.TextToSpeech
 import android.view.WindowManager
 import android.widget.Button
 import android.widget.ProgressBar
@@ -21,7 +20,6 @@ class AlarmActivity : Activity() {
     private lateinit var shakesText: TextView
     private lateinit var shakeProgress: ProgressBar
 
-    private var tts: TextToSpeech? = null
     private var sensorManager: SensorManager? = null
     private var shakeDetector: ShakeDetector? = null
     private var deck: InsultDeck? = null
@@ -58,14 +56,11 @@ class AlarmActivity : Activity() {
 
         deck = InsultDeck(InsultStore.load(this))
 
-        tts = TextToSpeech(this) { status ->
-            if (status == TextToSpeech.SUCCESS) {
-                // v1.3: John's saved voice from Settings, else the male guess.
-                val voiceName = VoiceHelper.applyVoice(tts!!, this@AlarmActivity)
-                try { findViewById<TextView>(R.id.voiceText).text = "Voice: $voiceName" } catch (e: Exception) { }
-                showNextInsult()
-            }
-        }
+        // v1.4: heavy metal instead of a voice. Insults still show on screen.
+        BackgroundHelper.apply(this, findViewById(android.R.id.content))
+        MetalPlayer.play(this, AlarmStore.getMetalClip(this))
+        findViewById<TextView>(R.id.soundText).text = "♪ ${MetalPlayer.currentTitle}"
+        showNextInsult()
 
         sensorManager = getSystemService(Context.SENSOR_SERVICE) as SensorManager
         shakeDetector = ShakeDetector { onShake() }
@@ -83,7 +78,7 @@ class AlarmActivity : Activity() {
         finished = true
         handler.removeCallbacks(insultRunnable)
         try { sensorManager?.let { ShakeDetector.unregister(it, shakeDetector!!) } } catch (e: Exception) { }
-        try { tts?.stop(); tts?.shutdown() } catch (e: Exception) { }
+        MetalPlayer.stop()
         super.onDestroy()
     }
 
@@ -95,15 +90,6 @@ class AlarmActivity : Activity() {
     private fun showNextInsult() {
         val insult = deck?.next() ?: return
         insultText.text = insult
-        speak(insult)
-    }
-
-    private fun speak(text: String) {
-        try {
-            tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, "insult")
-        } catch (e: Exception) {
-            // No TTS: the huge on-screen text still yells at him.
-        }
     }
 
     private fun onShake() {
@@ -146,6 +132,7 @@ class AlarmActivity : Activity() {
             this, alarm,
             System.currentTimeMillis() + AlarmStore.getSnoozeMinutes(this) * 60 * 1000L
         )
+        MetalPlayer.stop()
         AlarmService.stop(this)
         finish()
     }
@@ -157,7 +144,7 @@ class AlarmActivity : Activity() {
         if (finished) return
         finished = true
         handler.removeCallbacks(insultRunnable)
-        try { tts?.stop() } catch (e: Exception) { }
+        MetalPlayer.stop()
         AlarmService.stop(this)
         AlarmStore.resetShakes(this)
         // Repeating alarms were already re-armed by the receiver when they

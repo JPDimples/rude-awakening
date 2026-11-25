@@ -13,7 +13,6 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.provider.Settings
-import android.speech.tts.TextToSpeech
 import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
@@ -26,14 +25,15 @@ import java.util.Locale
 
 class MainActivity : Activity() {
 
+    private lateinit var titleText: TextView
     private lateinit var clockText: TextView
     private lateinit var statusText: TextView
     private lateinit var alarmListContainer: LinearLayout
     private lateinit var permissionText: TextView
     private lateinit var statusLogText: TextView
-    private lateinit var voiceText: TextView
-    private var testTts: TextToSpeech? = null
+    private lateinit var soundText: TextView
     private val clockHandler = Handler(Looper.getMainLooper())
+    private val metalHandler = Handler(Looper.getMainLooper())
     private val clockRunnable = object : Runnable {
         override fun run() {
             clockText.text = SimpleDateFormat("h:mm a", Locale.getDefault()).format(Date())
@@ -45,42 +45,48 @@ class MainActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        titleText = findViewById(R.id.titleText)
         clockText = findViewById(R.id.clockText)
         statusText = findViewById(R.id.statusText)
         alarmListContainer = findViewById(R.id.alarmListContainer)
         permissionText = findViewById(R.id.permissionText)
         statusLogText = findViewById(R.id.statusLogText)
-        voiceText = findViewById(R.id.voiceText)
+        soundText = findViewById(R.id.soundText)
 
         findViewById<Button>(R.id.addAlarmButton).setOnClickListener { addAlarm() }
         findViewById<Button>(R.id.settingsButton).setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
         }
-        findViewById<Button>(R.id.testVoiceButton).setOnClickListener { testVoice() }
+        findViewById<Button>(R.id.testMetalButton).setOnClickListener { testMetal() }
         findViewById<Button>(R.id.testAlarmButton).setOnClickListener {
             startActivity(Intent(this, AlarmActivity::class.java))
         }
 
         requestNotificationPermission()
         clockHandler.post(clockRunnable)
+        BackgroundHelper.apply(this, findViewById(android.R.id.content))
         refreshAlarms()
         updatePermissions()
     }
 
     override fun onResume() {
         super.onResume()
+        BackgroundHelper.apply(this, findViewById(android.R.id.content))
+        titleText.text = AlarmStore.getAppName(this)
         refreshAlarms()
         updatePermissions()
     }
 
     override fun onDestroy() {
         clockHandler.removeCallbacks(clockRunnable)
-        try { testTts?.stop(); testTts?.shutdown() } catch (e: Exception) { }
+        metalHandler.removeCallbacksAndMessages(null)
+        MetalPlayer.stop()
         super.onDestroy()
     }
 
     /** Rebuild the alarm cards from storage. */
     private fun refreshAlarms() {
+        titleText.text = AlarmStore.getAppName(this)
         alarmListContainer.removeAllViews()
         val alarms = AlarmStore.getAlarms(this)
             .sortedWith(compareBy({ it.hour }, { it.minute }))
@@ -88,7 +94,7 @@ class MainActivity : Activity() {
             val empty = TextView(this).apply {
                 text = "No alarms yet — tap + Add alarm."
                 textSize = 16f
-                setTextColor(0xFF8A8A9A.toInt())
+                setTextColor(BackgroundHelper.textColor(this@MainActivity))
                 setPadding(8, 24, 8, 24)
             }
             alarmListContainer.addView(empty)
@@ -99,16 +105,25 @@ class MainActivity : Activity() {
         val enabled = alarms.count { it.enabled }
         statusText.text = if (enabled == 0) "All alarms are off"
             else "$enabled alarm${if (enabled == 1) "" else "s"} set"
-        val savedVoice = AlarmStore.getVoiceName(this)
-        voiceText.text = if (savedVoice != null) "Voice: $savedVoice"
-            else "Voice: not picked yet — open Settings to choose one"
+        refreshSoundText()
+    }
+
+    private fun refreshSoundText() {
+        val clip = AlarmStore.getMetalClip(this)
+        val title = if (clip == MetalPlayer.SHUFFLE) "Shuffle all metal"
+            else MetalPlayer.loadClips(this).firstOrNull { it.file == clip }?.title ?: clip
+        soundText.text = "Sound: $title"
     }
 
     private fun buildAlarmCard(alarm: Alarm): View {
         val card = layoutInflater.inflate(R.layout.alarm_card, alarmListContainer, false)
-        card.findViewById<TextView>(R.id.cardTimeText).text = alarm.timeString()
-        card.findViewById<TextView>(R.id.cardDaysText).text =
-            AlarmStore.daysToString(alarm.days)
+        card.setBackgroundResource(BackgroundHelper.cardRes(this))
+        val timeText = card.findViewById<TextView>(R.id.cardTimeText)
+        val daysText = card.findViewById<TextView>(R.id.cardDaysText)
+        timeText.text = alarm.timeString()
+        daysText.text = AlarmStore.daysToString(alarm.days)
+        timeText.setTextColor(BackgroundHelper.textColor(this))
+        daysText.setTextColor(BackgroundHelper.textColor(this))
         val toggle = card.findViewById<Switch>(R.id.cardToggle)
         toggle.isChecked = alarm.enabled
         toggle.setOnCheckedChangeListener { _, checked ->
@@ -265,28 +280,21 @@ class MainActivity : Activity() {
         updatePermissions()
     }
 
-    /** Speaks one insult with the saved (or guessed) voice, right now. */
-    private fun testVoice() {
-        try { testTts?.stop(); testTts?.shutdown() } catch (e: Exception) { }
-        Toast.makeText(this, "Testing voice…", Toast.LENGTH_SHORT).show()
-        testTts = TextToSpeech(this) { status ->
-            if (status == TextToSpeech.SUCCESS) {
-                val name = VoiceHelper.applyVoice(testTts!!, this)
-                voiceText.text = "Voice: $name"
-                logStatus("Test voice: $name")
-                try {
-                    testTts?.speak(
-                        "Get your lazy ass up; the bed isn't going to fuck you.",
-                        TextToSpeech.QUEUE_FLUSH, null, "test"
-                    )
-                } catch (e: Exception) {
-                    Toast.makeText(this, "Voice test failed to speak", Toast.LENGTH_SHORT).show()
-                }
-            } else {
-                Toast.makeText(this, "Text-to-speech failed to start", Toast.LENGTH_SHORT).show()
-                logStatus("Test voice FAILED: text-to-speech did not start.")
-            }
+    /** Plays the saved metal clip for 10 seconds (tap again to stop early). */
+    private fun testMetal() {
+        if (MetalPlayer.isPlaying()) {
+            MetalPlayer.stop()
+            refreshSoundText()
+            return
         }
+        MetalPlayer.play(this, AlarmStore.getMetalClip(this))
+        soundText.text = "♪ Playing: ${MetalPlayer.currentTitle} (tap again to stop)"
+        metalHandler.postDelayed({
+            if (MetalPlayer.isPlaying()) {
+                MetalPlayer.stop()
+                refreshSoundText()
+            }
+        }, 10_000)
     }
 
     private fun canScheduleExactAlarms(): Boolean {

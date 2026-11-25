@@ -62,17 +62,17 @@
         android:id="@+id/settingsButton"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:text="Settings"
+        android:text="Customize"
         android:textSize="16sp"
         android:textColor="#55556A"
         android:background="@drawable/button_bg"
         android:layout_marginTop="12dp" />
 
     <Button
-        android:id="@+id/testVoiceButton"
+        android:id="@+id/testMetalButton"
         android:layout_width="match_parent"
         android:layout_height="56dp"
-        android:text="Test voice"
+        android:text="Test metal sound"
         android:textSize="16sp"
         android:textColor="#55556A"
         android:background="@drawable/button_bg"
@@ -89,7 +89,7 @@
         android:layout_marginTop="12dp" />
 
     <TextView
-        android:id="@+id/voiceText"
+        android:id="@+id/soundText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text=""

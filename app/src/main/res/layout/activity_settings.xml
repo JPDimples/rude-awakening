@@ -1,73 +1,106 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="24dp"
     android:background="@drawable/bg_gradient">
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Settings"
-        android:textSize="30sp"
-        android:textColor="#6E6E80"
-        android:textStyle="bold"
-        android:layout_marginTop="16dp" />
+        android:orientation="vertical"
+        android:padding="24dp">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Alarm voice — tap one to hear it and save it"
-        android:textSize="16sp"
-        android:textColor="#8A8A9A"
-        android:layout_marginTop="8dp" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Customize"
+            android:textSize="30sp"
+            android:textColor="#6E6E80"
+            android:textStyle="bold"
+            android:layout_marginTop="16dp" />
 
-    <TextView
-        android:id="@+id/selectedVoiceText"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text=""
-        android:textSize="14sp"
-        android:textColor="#55556A"
-        android:layout_marginTop="12dp" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Alarm sound — tap one to hear it and save it"
+            android:textSize="16sp"
+            android:textColor="#8A8A9A"
+            android:layout_marginTop="8dp" />
 
-    <ListView
-        android:id="@+id/voiceListView"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1"
-        android:background="@drawable/card_bg"
-        android:layout_marginTop="12dp" />
+        <TextView
+            android:id="@+id/selectedSoundText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text=""
+            android:textSize="14sp"
+            android:textColor="#55556A"
+            android:layout_marginTop="12dp" />
 
-    <Button
-        android:id="@+id/shakesButton"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:text="Shakes to stop: 20"
-        android:textSize="16sp"
-        android:textColor="#55556A"
-        android:background="@drawable/button_bg"
-        android:layout_marginTop="16dp" />
+        <ListView
+            android:id="@+id/soundListView"
+            android:layout_width="match_parent"
+            android:layout_height="220dp"
+            android:background="@drawable/card_bg"
+            android:layout_marginTop="12dp" />
 
-    <Button
-        android:id="@+id/snoozeButton"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:text="Snooze length: 5 min"
-        android:textSize="16sp"
-        android:textColor="#55556A"
-        android:background="@drawable/button_bg"
-        android:layout_marginTop="12dp" />
+        <Button
+            android:id="@+id/nameButton"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="App name: Rude Awakening"
+            android:textSize="16sp"
+            android:textColor="#55556A"
+            android:background="@drawable/button_bg"
+            android:layout_marginTop="16dp" />
 
-    <Button
-        android:id="@+id/doneButton"
-        android:layout_width="match_parent"
-        android:layout_height="56dp"
-        android:text="Done"
-        android:textSize="16sp"
-        android:textColor="#55556A"
-        android:background="@drawable/button_bg"
-        android:layout_marginTop="12dp" />
+        <Button
+            android:id="@+id/backgroundButton"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="Background: Pastel"
+            android:textSize="16sp"
+            android:textColor="#55556A"
+            android:background="@drawable/button_bg"
+            android:layout_marginTop="12dp" />
 
-</LinearLayout>
+        <Button
+            android:id="@+id/shakesButton"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="Shakes to stop: 20"
+            android:textSize="16sp"
+            android:textColor="#55556A"
+            android:background="@drawable/button_bg"
+            android:layout_marginTop="12dp" />
+
+        <Button
+            android:id="@+id/snoozeButton"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="Snooze length: 5 min"
+            android:textSize="16sp"
+            android:textColor="#55556A"
+            android:background="@drawable/button_bg"
+            android:layout_marginTop="12dp" />
+
+        <Button
+            android:id="@+id/doneButton"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
+            android:text="Done"
+            android:textSize="16sp"
+            android:textColor="#55556A"
+            android:background="@drawable/button_bg"
+            android:layout_marginTop="12dp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Metal clips: “Heavy Metal Riffs – Monolith” by Tri-Tachyon (CC BY), “Cyberpunk Metal” by Bertsz (CC0), “Hard Rock Loop” by BaDoink (CC0), “Heavy Metal” by Rínon Nínqueon (CC BY-SA), “Metal Hunters” by Gangrel (CC BY). Trimmed to 30-second clips."
+            android:textSize="12sp"
+            android:textColor="#9A9AB0"
+            android:layout_marginTop="16dp" />
+
+    </LinearLayout>
+
+</ScrollView>

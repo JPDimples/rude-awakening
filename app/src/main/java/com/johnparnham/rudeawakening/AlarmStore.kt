@@ -33,7 +33,11 @@ object AlarmStore {
     private const val KEY_ENABLED = "alarm_enabled"
     private const val KEY_SHAKES = "shakes_required"
     private const val KEY_SNOOZE_MINUTES = "snooze_minutes"
-    private const val KEY_VOICE_NAME = "voice_name"
+    private const val KEY_METAL_CLIP = "metal_clip"
+    private const val KEY_APP_NAME = "app_name"
+    const val KEY_BACKGROUND = "background"
+    const val KEY_BACKGROUND_URI = "background_uri"
+    const val KEY_BACKGROUND_DARK_TEXT = "background_dark_text"
 
     const val DEFAULT_SHAKES = 20
     const val MAX_SHAKES = 40
@@ -135,11 +139,21 @@ object AlarmStore {
         prefs(context).edit().putInt(KEY_SNOOZE_MINUTES, minutes.coerceIn(1, 30)).apply()
     }
 
-    fun getVoiceName(context: Context): String? =
-        prefs(context).getString(KEY_VOICE_NAME, null)
+    // ---- metal sound / app name (v1.4) ----
 
-    fun setVoiceName(context: Context, name: String) {
-        prefs(context).edit().putString(KEY_VOICE_NAME, name).apply()
+    /** Saved metal clip file name, or MetalPlayer.SHUFFLE for all of them. */
+    fun getMetalClip(context: Context): String =
+        prefs(context).getString(KEY_METAL_CLIP, MetalPlayer.SHUFFLE) ?: MetalPlayer.SHUFFLE
+
+    fun setMetalClip(context: Context, clip: String) {
+        prefs(context).edit().putString(KEY_METAL_CLIP, clip).apply()
+    }
+
+    fun getAppName(context: Context): String =
+        prefs(context).getString(KEY_APP_NAME, "Rude Awakening") ?: "Rude Awakening"
+
+    fun setAppName(context: Context, name: String) {
+        prefs(context).edit().putString(KEY_APP_NAME, name.ifBlank { "Rude Awakening" }).apply()
     }
 
     // ---- days ----
