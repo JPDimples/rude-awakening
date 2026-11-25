@@ -103,6 +103,8 @@ class MainActivity : Activity() {
                 setPadding(8, 24, 8, 24)
             }
             alarmListContainer.addView(empty)
+            // Don't leave a stale "Alarm set for ..." log when no alarms exist.
+            statusLogText.text = ""
         }
         for (alarm in alarms) {
             alarmListContainer.addView(buildAlarmCard(alarm))

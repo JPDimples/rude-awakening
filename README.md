@@ -71,7 +71,7 @@ Local (same pattern as the TapTalk manual build on this VM):
 
 ```bash
 ./manual-build.sh
-# -> rude-awakening-native-v7.apk (debug-signed, apksigner verified)
+# -> rude-awakening-native-v8.apk (debug-signed, apksigner verified)
 ```
 
 GitHub Actions (`.github/workflows/build-apk.yml`) runs the same script:
@@ -80,6 +80,15 @@ Kotlin 1.9.24, then runs `./manual-build.sh` and uploads the APK.
 
 ## History
 
+- **v1.8 (2026-11-25): alarm list in a scroll box, no sound list, credits
+  behind a button, bigger caution tape.** The credits paragraph is off
+  the bottom of Customize — it's now a "Metal credits" button that shows
+  the credits in a dialog. The sound picker list is gone (the saved
+  sound, Shuffle all metal, is used as-is). The alarm list is back in
+  its own 260dp box with a visible scrollbar on the side, so the home
+  page itself doesn't scroll. The caution tape bar is 14dp tall with a
+  bigger, thicker-striped tile (144x24, 18px bands). Also: the stale
+  "Alarm set for ..." log line is cleared when no alarms exist.
 - **v1.7 (2026-11-25): fix cut-off alarm card, scrollable sound list, pill
   3D buttons, digital alarm clock.** John sent screenshots: the alarm
   card was cut off (the ON button sliced in half, days text missing) and

@@ -24,33 +24,8 @@
 
         <View
             android:layout_width="match_parent"
-            android:layout_height="6dp"
+            android:layout_height="14dp"
             android:background="@drawable/hazard_stripes"
-            android:layout_marginTop="12dp" />
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Alarm sound — tap one to hear it and save it"
-            android:textSize="16sp"
-            android:textColor="#8A8A9A"
-            android:layout_marginTop="8dp" />
-
-        <TextView
-            android:id="@+id/selectedSoundText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text=""
-            android:textSize="14sp"
-            android:textColor="#E8E8F0"
-            android:layout_marginTop="12dp" />
-
-        <LinearLayout
-            android:id="@+id/soundListContainer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:background="@drawable/card_bg"
             android:layout_marginTop="12dp" />
 
         <Button
@@ -103,13 +78,15 @@
             android:background="@drawable/button_bg"
             android:layout_marginTop="12dp" />
 
-        <TextView
+        <Button
+            android:id="@+id/metalCreditsButton"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Metal clips: “Heavy Metal Riffs – Monolith” by Tri-Tachyon (CC BY), “Cyberpunk Metal” by Bertsz (CC0), “Hard Rock Loop” by BaDoink (CC0), “Heavy Metal” by Rínon Nínqueon (CC BY-SA), “Metal Hunters” by Gangrel (CC BY), “Metal Child” by Avenger Kills (CC BY), “So Metal It Hurts” by Daniel Bautista (CC BY), “True Metal Awaits” by Daniel Bautista (CC BY), “Death Metal Tango” by SadClown (CC BY-SA), “Long Live Heavy Metal” by black city (CC BY-SA). Trimmed to 30-second clips."
-            android:textSize="12sp"
-            android:textColor="#9A9AB0"
-            android:layout_marginTop="16dp" />
+            android:layout_height="56dp"
+            android:text="Metal credits"
+            android:textSize="16sp"
+            android:textColor="#E8E8F0"
+            android:background="@drawable/button_bg"
+            android:layout_marginTop="12dp" />
 
     </LinearLayout>
 

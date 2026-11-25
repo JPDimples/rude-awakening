@@ -4,10 +4,8 @@ import android.app.Activity
 import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
-import android.view.View
 import android.widget.Button
 import android.widget.EditText
-import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 
@@ -18,13 +16,11 @@ import android.widget.Toast
  */
 class SettingsActivity : Activity() {
 
-    private lateinit var soundListContainer: LinearLayout
-    private lateinit var selectedSoundText: TextView
     private lateinit var nameButton: Button
     private lateinit var backgroundButton: Button
     private lateinit var shakesButton: Button
     private lateinit var snoozeButton: Button
-    private var clips: List<MetalClip> = emptyList()
+    private lateinit var metalCreditsButton: Button
 
     companion object {
         private const val PICK_PHOTO = 1001
@@ -34,21 +30,19 @@ class SettingsActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
 
-        soundListContainer = findViewById(R.id.soundListContainer)
-        selectedSoundText = findViewById(R.id.selectedSoundText)
         nameButton = findViewById(R.id.nameButton)
         backgroundButton = findViewById(R.id.backgroundButton)
         shakesButton = findViewById(R.id.shakesButton)
         snoozeButton = findViewById(R.id.snoozeButton)
+        metalCreditsButton = findViewById(R.id.metalCreditsButton)
 
-        clips = MetalPlayer.loadClips(this)
-        showSoundList()
         refreshButtons()
 
         nameButton.setOnClickListener { showNameDialog() }
         backgroundButton.setOnClickListener { showBackgroundDialog() }
         shakesButton.setOnClickListener { showShakesDialog() }
         snoozeButton.setOnClickListener { showSnoozeDialog() }
+        metalCreditsButton.setOnClickListener { showMetalCreditsDialog() }
         findViewById<Button>(R.id.doneButton).setOnClickListener {
             MetalPlayer.stop()
             finish()
@@ -88,52 +82,14 @@ class SettingsActivity : Activity() {
         }
     }
 
-    // v1.7: the sound list is plain rows inside the page's ScrollView, so
-    // the whole Customize page scrolls as one — the old fixed-height
-    // ListView trapped the clips in a 220dp box and cut the 5th row off.
-    private fun showSoundList() {
-        val saved = AlarmStore.getMetalClip(this)
-        soundListContainer.removeAllViews()
-        soundListContainer.setBackgroundResource(BackgroundHelper.cardRes(this))
-        val textColor = BackgroundHelper.textColor(this)
-
-        fun addRow(label: String, isSaved: Boolean, onTap: () -> Unit) {
-            val row = TextView(this).apply {
-                text = (if (isSaved) "✓ " else "") + label
-                textSize = 16f
-                setTextColor(textColor)
-                setPadding(48, 36, 48, 36)
-                setOnClickListener { onTap() }
-            }
-            soundListContainer.addView(row)
-            val divider = View(this).apply {
-                layoutParams = LinearLayout.LayoutParams(
-                    LinearLayout.LayoutParams.MATCH_PARENT, 2
-                )
-                setBackgroundColor(0xFFD8D8E0.toInt())
-            }
-            soundListContainer.addView(divider)
-        }
-
-        addRow("Shuffle all metal", saved == MetalPlayer.SHUFFLE) {
-            AlarmStore.setMetalClip(this, MetalPlayer.SHUFFLE)
-            MetalPlayer.play(this, MetalPlayer.SHUFFLE)
-            selectedSoundText.text = "Sound: Shuffle all metal"
-            Toast.makeText(this, "Sound saved: Shuffle all metal", Toast.LENGTH_SHORT).show()
-            showSoundList()
-        }
-        for (clip in clips) {
-            addRow("${clip.title} — ${clip.creator}", clip.file == saved) {
-                AlarmStore.setMetalClip(this, clip.file)
-                MetalPlayer.play(this, clip.file)
-                selectedSoundText.text = "Sound: ${clip.title} — ${clip.creator}"
-                Toast.makeText(this, "Sound saved: ${clip.title}", Toast.LENGTH_SHORT).show()
-                showSoundList()
-            }
-        }
-        val savedTitle = if (saved == MetalPlayer.SHUFFLE) "Shuffle all metal"
-            else clips.firstOrNull { it.file == saved }?.title ?: saved
-        selectedSoundText.text = "Sound: $savedTitle"
+    // v1.8: the credits paragraph lived at the bottom of this screen; it
+    // now lives behind a button instead.
+    private fun showMetalCreditsDialog() {
+        AlertDialog.Builder(this)
+            .setTitle("Metal clips")
+            .setMessage("“Heavy Metal Riffs – Monolith” by Tri-Tachyon (CC BY), “Cyberpunk Metal” by Bertsz (CC0), “Hard Rock Loop” by BaDoink (CC0), “Heavy Metal” by Rínon Nínqueon (CC BY-SA), “Metal Hunters” by Gangrel (CC BY), “Metal Child” by Avenger Kills (CC BY), “So Metal It Hurts” by Daniel Bautista (CC BY), “True Metal Awaits” by Daniel Bautista (CC BY), “Death Metal Tango” by SadClown (CC BY-SA), “Long Live Heavy Metal” by black city (CC BY-SA). Trimmed to 30-second clips.")
+            .setPositiveButton("OK", null)
+            .show()
     }
 
     private fun refreshButtons() {

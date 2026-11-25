@@ -1,139 +1,143 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/rootLayout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:fillViewport="true"
+    android:orientation="vertical"
+    android:padding="24dp"
     android:background="@drawable/bg_midnight">
 
-    <LinearLayout
+    <TextView
+        android:id="@+id/titleText"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="24dp">
+        android:text="Rude Awakening"
+        android:textSize="30sp"
+        android:textColor="#6E6E80"
+        android:textStyle="bold"
+        android:textAllCaps="true"
+        android:letterSpacing="0.12"
+        android:layout_marginTop="12dp" />
 
-        <TextView
-            android:id="@+id/titleText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Rude Awakening"
-            android:textSize="30sp"
-            android:textColor="#6E6E80"
-            android:textStyle="bold"
-            android:textAllCaps="true"
-            android:letterSpacing="0.12"
-            android:layout_marginTop="16dp" />
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="14dp"
+        android:background="@drawable/hazard_stripes"
+        android:layout_marginTop="12dp" />
 
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="6dp"
-            android:background="@drawable/hazard_stripes"
-            android:layout_marginTop="12dp" />
+    <TextView
+        android:id="@+id/clockText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="--:--"
+        android:textSize="18sp"
+        android:textColor="#8A8A9A"
+        android:typeface="monospace"
+        android:layout_marginTop="8dp" />
 
-        <TextView
-            android:id="@+id/clockText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="--:--"
-            android:textSize="18sp"
-            android:textColor="#8A8A9A"
-            android:typeface="monospace"
-            android:layout_marginTop="12dp" />
+    <TextView
+        android:id="@+id/statusText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="All alarms are off"
+        android:textSize="20sp"
+        android:textColor="#8A8A9A"
+        android:layout_marginTop="4dp" />
 
-        <TextView
-            android:id="@+id/statusText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="All alarms are off"
-            android:textSize="20sp"
-            android:textColor="#8A8A9A"
-            android:layout_marginTop="4dp" />
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="260dp"
+        android:layout_marginTop="12dp"
+        android:background="@drawable/list_box_bg"
+        android:scrollbars="vertical"
+        android:scrollbarStyle="outsideOverlay"
+        android:fadeScrollbars="false">
 
         <LinearLayout
             android:id="@+id/alarmListContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:layout_marginTop="16dp" />
+            android:padding="8dp" />
 
-        <Button
-            android:id="@+id/addAlarmButton"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:text="+ Add alarm"
-            android:textSize="16sp"
-            android:textColor="#111111"
-            android:textStyle="bold"
-            android:background="@drawable/button_primary"
-            android:layout_marginTop="16dp" />
+    </ScrollView>
 
-        <Button
-            android:id="@+id/settingsButton"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:text="Customize"
-            android:textSize="16sp"
-            android:textColor="#E8E8F0"
-            android:background="@drawable/button_bg"
-            android:layout_marginTop="12dp" />
+    <Button
+        android:id="@+id/addAlarmButton"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="+ Add alarm"
+        android:textSize="16sp"
+        android:textColor="#111111"
+        android:textStyle="bold"
+        android:background="@drawable/button_primary"
+        android:layout_marginTop="12dp" />
 
-        <Button
-            android:id="@+id/testMetalButton"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:text="Test metal sound"
-            android:textSize="16sp"
-            android:textColor="#E8E8F0"
-            android:background="@drawable/button_bg"
-            android:layout_marginTop="12dp" />
+    <Button
+        android:id="@+id/settingsButton"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="Customize"
+        android:textSize="16sp"
+        android:textColor="#E8E8F0"
+        android:background="@drawable/button_bg"
+        android:layout_marginTop="10dp" />
 
-        <Button
-            android:id="@+id/testAlarmButton"
-            android:layout_width="match_parent"
-            android:layout_height="56dp"
-            android:text="TEST ALARM NOW"
-            android:textSize="16sp"
-            android:textColor="#111111"
-            android:textStyle="bold"
-            android:background="@drawable/button_primary"
-            android:layout_marginTop="12dp" />
+    <Button
+        android:id="@+id/testMetalButton"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="Test metal sound"
+        android:textSize="16sp"
+        android:textColor="#E8E8F0"
+        android:background="@drawable/button_bg"
+        android:layout_marginTop="10dp" />
 
-        <TextView
-            android:id="@+id/soundText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text=""
-            android:textSize="14sp"
-            android:textColor="#8A8A9A"
-            android:layout_marginTop="20dp" />
+    <Button
+        android:id="@+id/testAlarmButton"
+        android:layout_width="match_parent"
+        android:layout_height="56dp"
+        android:text="TEST ALARM NOW"
+        android:textSize="16sp"
+        android:textColor="#111111"
+        android:textStyle="bold"
+        android:background="@drawable/button_primary"
+        android:layout_marginTop="10dp" />
 
-        <TextView
-            android:id="@+id/permissionText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text=""
-            android:textSize="14sp"
-            android:textColor="#8A8A9A"
-            android:layout_marginTop="8dp" />
+    <TextView
+        android:id="@+id/soundText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textSize="14sp"
+        android:textColor="#8A8A9A"
+        android:layout_marginTop="12dp" />
 
-        <TextView
-            android:id="@+id/statusLogText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text=""
-            android:textSize="13sp"
-            android:textColor="#9A9AB0"
-            android:layout_marginTop="8dp" />
+    <TextView
+        android:id="@+id/permissionText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textSize="14sp"
+        android:textColor="#8A8A9A"
+        android:layout_marginTop="6dp" />
 
-        <TextView
-            android:id="@+id/infoText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Tap an alarm to change its time and days."
-            android:textSize="14sp"
-            android:textColor="#9A9AB0"
-            android:layout_marginTop="8dp" />
+    <TextView
+        android:id="@+id/statusLogText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textSize="13sp"
+        android:textColor="#9A9AB0"
+        android:layout_marginTop="6dp" />
 
-    </LinearLayout>
+    <TextView
+        android:id="@+id/infoText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Tap an alarm to change its time and days."
+        android:textSize="14sp"
+        android:textColor="#9A9AB0"
+        android:layout_marginTop="6dp" />
 
-</ScrollView>
+</LinearLayout>
