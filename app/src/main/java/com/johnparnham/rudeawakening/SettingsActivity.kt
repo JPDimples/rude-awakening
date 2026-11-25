@@ -72,12 +72,12 @@ class SettingsActivity : Activity() {
             finish()
         }
 
-        BackgroundHelper.apply(this, findViewById(android.R.id.content))
+        BackgroundHelper.apply(this, findViewById(R.id.rootLayout))
     }
 
     override fun onResume() {
         super.onResume()
-        BackgroundHelper.apply(this, findViewById(android.R.id.content))
+        BackgroundHelper.apply(this, findViewById(R.id.rootLayout))
         refreshButtons()
     }
 
@@ -174,7 +174,7 @@ class SettingsActivity : Activity() {
                     AlarmStore.prefs(this).edit()
                         .putString(AlarmStore.KEY_BACKGROUND, BackgroundHelper.PRESETS[which])
                         .apply()
-                    BackgroundHelper.apply(this, findViewById(android.R.id.content))
+                    BackgroundHelper.apply(this, findViewById(R.id.rootLayout))
                     refreshButtons()
                     dialog.dismiss()
                 }
@@ -206,11 +206,15 @@ class SettingsActivity : Activity() {
                 AlarmStore.prefs(this).edit()
                     .putBoolean(AlarmStore.KEY_BACKGROUND_DARK_TEXT, which == 0)
                     .apply()
-                BackgroundHelper.apply(this, findViewById(android.R.id.content))
+                BackgroundHelper.apply(this, findViewById(R.id.rootLayout))
                 refreshButtons()
                 dialog.dismiss()
             }
-            .setNegativeButton("Cancel", null)
+            .setNegativeButton("Cancel") { _, _ ->
+                // Photo is already saved; apply it with the default light text.
+                BackgroundHelper.apply(this, findViewById(R.id.rootLayout))
+                refreshButtons()
+            }
             .show()
     }
 

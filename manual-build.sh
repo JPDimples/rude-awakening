@@ -61,6 +61,6 @@ KEYSTORE="$PWD/rude-awakening.keystore"
 if [ ! -f "$KEYSTORE" ]; then
   "$JAVA_HOME/bin/keytool" -genkey -v -keystore "$KEYSTORE" -storepass android -alias androiddebugkey -keypass android -keyalg RSA -keysize 2048 -validity 10000 -dname "CN=Rude Awakening, OU=Rude Awakening, O=Rude Awakening, L=Toronto, ST=Ontario, C=CA" 2>&1 | tail -5
 fi
-"$SDK/build-tools/34.0.0/apksigner" sign --ks "$KEYSTORE" --ks-pass pass:android --key-pass pass:android --out "$PWD/rude-awakening-native-v4.apk" "$OUT/RudeAwakening-aligned.apk"
-"$SDK/build-tools/34.0.0/apksigner" verify "$PWD/rude-awakening-native-v4.apk" && echo "APK VERIFIED"
-ls -lh "$PWD/rude-awakening-native-v4.apk"
+"$SDK/build-tools/34.0.0/apksigner" sign --ks "$KEYSTORE" --ks-pass pass:android --key-pass pass:android --out "$PWD/rude-awakening-native-v5.apk" "$OUT/RudeAwakening-aligned.apk"
+"$SDK/build-tools/34.0.0/apksigner" verify "$PWD/rude-awakening-native-v5.apk" && echo "APK VERIFIED"
+ls -lh "$PWD/rude-awakening-native-v5.apk"

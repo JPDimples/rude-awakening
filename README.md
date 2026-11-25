@@ -8,10 +8,13 @@ and the accelerometer to count shakes. No internet, no login, no account.
 
 ## What it does
 
-- **Home screen (Samsung Clock style):** light pastel gradient, white
-  rounded alarm cards, "All alarms are off" / "2 alarms set" status line.
-  **+ Add alarm** for as many alarms as you want; tap a card to change
-  its time and repeat days; switch toggles it; ✕ deletes it.
+- **Home screen (industrial, v1.5):** dark Midnight background by
+  default, amber hazard stripe under the title, monospace clock and
+  alarm times, sharp-cornered steel cards with an amber ON / dark OFF
+  button (no more Switch), amber primary buttons. "All alarms are off" /
+  "2 alarms set" status line. **+ Add alarm** for as many alarms as you
+  want; tap a card to change its time and repeat days; ON/OFF toggles
+  it; ✕ deletes it.
 - **Sound (v1.4): HEAVY METAL, no voices.** The alarm plays 30-second
   heavy metal clips instead of a spoken voice. The insults still show on
   screen and rotate every 15 seconds — they just aren't spoken any more.
@@ -66,7 +69,7 @@ Local (same pattern as the TapTalk manual build on this VM):
 
 ```bash
 ./manual-build.sh
-# -> rude-awakening-native-v4.apk (debug-signed, apksigner verified)
+# -> rude-awakening-native-v5.apk (debug-signed, apksigner verified)
 ```
 
 GitHub Actions (`.github/workflows/build-apk.yml`) runs the same script:
@@ -75,6 +78,17 @@ Kotlin 1.9.24, then runs `./manual-build.sh` and uploads the APK.
 
 ## History
 
+- **v1.5 (2026-11-25): Customize bug fix + industrial redesign.** The
+  v1.4 background change did nothing: `BackgroundHelper.apply()` set the
+  background on the activity's content parent, but every screen's own
+  root layout painted its pastel gradient over it, hiding the change.
+  Fixed by giving each screen's root layout an id (`rootLayout`) and
+  applying the background to that view directly — presets and gallery
+  photos now actually show. (Cancelling the photo text-choice dialog
+  also applies the photo now.) Design tightened to modern industrial:
+  dark Midnight default background, amber accent, hazard-stripe bars,
+  monospace times, sharp 4dp corners, steel cards with 1dp borders,
+  amber primary buttons, ON/OFF buttons instead of Switches.
 - **v1.4 (2026-11-25): heavy metal instead of voices + Customize.**
   John hated all the voices, so text-to-speech is gone entirely. The
   alarm now plays one of 5 royalty-free heavy metal clips (30 seconds

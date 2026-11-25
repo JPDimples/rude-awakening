@@ -20,7 +20,8 @@
             android:text="7:00 a.m."
             android:textSize="40sp"
             android:textColor="#9A9AB0"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            android:typeface="monospace" />
 
         <TextView
             android:id="@+id/cardDaysText"
@@ -33,10 +34,15 @@
 
     </LinearLayout>
 
-    <Switch
+    <Button
         android:id="@+id/cardToggle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="64dp"
+        android:layout_height="48dp"
+        android:text="ON"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:textColor="#111111"
+        android:background="@drawable/button_primary"
         android:layout_gravity="center_vertical" />
 
     <Button

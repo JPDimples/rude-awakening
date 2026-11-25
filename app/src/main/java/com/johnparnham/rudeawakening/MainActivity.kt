@@ -16,7 +16,6 @@ import android.provider.Settings
 import android.view.View
 import android.widget.Button
 import android.widget.LinearLayout
-import android.widget.Switch
 import android.widget.TextView
 import android.widget.Toast
 import java.text.SimpleDateFormat
@@ -64,17 +63,23 @@ class MainActivity : Activity() {
 
         requestNotificationPermission()
         clockHandler.post(clockRunnable)
-        BackgroundHelper.apply(this, findViewById(android.R.id.content))
+        applyTheme()
         refreshAlarms()
         updatePermissions()
     }
 
     override fun onResume() {
         super.onResume()
-        BackgroundHelper.apply(this, findViewById(android.R.id.content))
+        applyTheme()
         titleText.text = AlarmStore.getAppName(this)
         refreshAlarms()
         updatePermissions()
+    }
+
+    /** Background + text colours + the amber industrial clock. */
+    private fun applyTheme() {
+        BackgroundHelper.apply(this, findViewById(R.id.rootLayout))
+        clockText.setTextColor(BackgroundHelper.accentColor(this))
     }
 
     override fun onDestroy() {
@@ -124,11 +129,9 @@ class MainActivity : Activity() {
         daysText.text = AlarmStore.daysToString(alarm.days)
         timeText.setTextColor(BackgroundHelper.textColor(this))
         daysText.setTextColor(BackgroundHelper.textColor(this))
-        val toggle = card.findViewById<Switch>(R.id.cardToggle)
-        toggle.isChecked = alarm.enabled
-        toggle.setOnCheckedChangeListener { _, checked ->
-            onToggleAlarm(alarm, checked)
-        }
+        val toggle = card.findViewById<Button>(R.id.cardToggle)
+        styleToggle(toggle, alarm.enabled)
+        toggle.setOnClickListener { onToggleAlarm(alarm, !alarm.enabled) }
         card.setOnClickListener { editAlarm(alarm) }
         card.findViewById<Button>(R.id.cardDeleteButton).setOnClickListener {
             AlarmScheduler.cancel(this, alarm)
@@ -137,6 +140,19 @@ class MainActivity : Activity() {
             Toast.makeText(this, "Alarm deleted", Toast.LENGTH_SHORT).show()
         }
         return card
+    }
+
+    /** Industrial ON/OFF button: amber when on, dark steel when off. */
+    private fun styleToggle(toggle: Button, enabled: Boolean) {
+        if (enabled) {
+            toggle.text = "ON"
+            toggle.setBackgroundResource(R.drawable.button_primary)
+            toggle.setTextColor(0xFF111111.toInt())
+        } else {
+            toggle.text = "OFF"
+            toggle.setBackgroundResource(R.drawable.button_bg)
+            toggle.setTextColor(0xFF8A8A9A.toInt())
+        }
     }
 
     private fun onToggleAlarm(alarm: Alarm, checked: Boolean) {

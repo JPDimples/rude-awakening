@@ -36,7 +36,7 @@ object BackgroundHelper {
     private val DARK_PRESETS = setOf(MIDNIGHT, BLOOD, FOREST)
 
     fun getBackground(context: android.content.Context): String =
-        AlarmStore.prefs(context).getString(AlarmStore.KEY_BACKGROUND, PASTEL) ?: PASTEL
+        AlarmStore.prefs(context).getString(AlarmStore.KEY_BACKGROUND, MIDNIGHT) ?: MIDNIGHT
 
     fun isDark(context: android.content.Context): Boolean {
         val bg = getBackground(context)
@@ -61,6 +61,10 @@ object BackgroundHelper {
 
     fun textColor(context: android.content.Context): Int =
         if (isDark(context)) 0xFFE8E8F0.toInt() else 0xFF55556A.toInt()
+
+    /** Industrial amber accent: bright on dark backgrounds, darker on light ones. */
+    fun accentColor(context: android.content.Context): Int =
+        if (isDark(context)) 0xFFFFB000.toInt() else 0xFF7A5200.toInt()
 
     /** Apply the saved background + text colours to an activity's content view. */
     fun apply(activity: Activity, root: View) {

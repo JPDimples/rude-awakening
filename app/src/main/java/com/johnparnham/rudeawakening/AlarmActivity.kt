@@ -57,7 +57,11 @@ class AlarmActivity : Activity() {
         deck = InsultDeck(InsultStore.load(this))
 
         // v1.4: heavy metal instead of a voice. Insults still show on screen.
-        BackgroundHelper.apply(this, findViewById(android.R.id.content))
+        BackgroundHelper.apply(this, findViewById(R.id.rootLayout))
+        findViewById<TextView>(R.id.wakeUpText)
+            .setTextColor(BackgroundHelper.accentColor(this))
+        findViewById<ProgressBar>(R.id.shakeProgress).progressTintList =
+            android.content.res.ColorStateList.valueOf(BackgroundHelper.accentColor(this))
         MetalPlayer.play(this, AlarmStore.getMetalClip(this))
         findViewById<TextView>(R.id.soundText).text = "♪ ${MetalPlayer.currentTitle}"
         showNextInsult()
