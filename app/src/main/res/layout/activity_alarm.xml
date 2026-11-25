@@ -5,7 +5,7 @@
     android:orientation="vertical"
     android:padding="24dp"
     android:gravity="center"
-    android:background="#111111">
+    android:background="@drawable/bg_gradient">
 
     <TextView
         android:id="@+id/wakeUpText"
@@ -13,7 +13,7 @@
         android:layout_height="wrap_content"
         android:text="WAKE UP!"
         android:textSize="32sp"
-        android:textColor="#FF5252"
+        android:textColor="#6E6E80"
         android:textStyle="bold" />
 
     <TextView
@@ -21,8 +21,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Get up."
-        android:textSize="28sp"
-        android:textColor="#FFFFFF"
+        android:textSize="26sp"
+        android:textColor="#3F3F4D"
         android:textStyle="bold"
         android:gravity="center"
         android:layout_marginTop="32dp" />
@@ -34,6 +34,8 @@
         android:layout_height="wrap_content"
         android:max="20"
         android:progress="0"
+        android:progressTint="#8A8AC0"
+        android:progressBackgroundTint="#E0E0EA"
         android:layout_marginTop="48dp" />
 
     <TextView
@@ -41,8 +43,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="SHAKES: 0 / 20"
-        android:textSize="24sp"
-        android:textColor="#FFFFFF"
+        android:textSize="22sp"
+        android:textColor="#55556A"
         android:textStyle="bold"
         android:layout_marginTop="16dp" />
 
@@ -52,14 +54,26 @@
         android:layout_height="wrap_content"
         android:text="SHAKE THE PHONE"
         android:textSize="16sp"
-        android:textColor="#CCCCCC"
+        android:textColor="#8A8A9A"
         android:layout_marginTop="8dp" />
 
     <Button
         android:id="@+id/snoozeButton"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="56dp"
         android:text="Snooze 5 min (+5 shakes)"
+        android:textSize="16sp"
+        android:textColor="#55556A"
+        android:background="@drawable/button_bg"
         android:layout_marginTop="48dp" />
+
+    <TextView
+        android:id="@+id/voiceText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textSize="13sp"
+        android:textColor="#9A9AB0"
+        android:layout_marginTop="24dp" />
 
 </LinearLayout>

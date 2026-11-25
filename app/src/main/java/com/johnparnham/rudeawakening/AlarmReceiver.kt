@@ -20,13 +20,20 @@ object AlarmScheduler {
         )
     }
 
-    fun schedule(context: Context) {
-        scheduleAt(context, AlarmStore.nextTriggerMillis(context))
+    /** Returns true if the exact alarm was accepted by the system. */
+    fun schedule(context: Context): Boolean {
+        return scheduleAt(context, AlarmStore.nextTriggerMillis(context))
     }
 
-    fun scheduleAt(context: Context, triggerMillis: Long) {
+    /** Returns false (instead of crashing) if the system refuses the alarm. */
+    fun scheduleAt(context: Context, triggerMillis: Long): Boolean {
         val am = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerMillis, alarmIntent(context))
+        return try {
+            am.setExactAndAllowWhileIdle(AlarmManager.RTC_WAKEUP, triggerMillis, alarmIntent(context))
+            true
+        } catch (e: SecurityException) {
+            false
+        }
     }
 
     fun cancel(context: Context) {

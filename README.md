@@ -8,10 +8,21 @@ and the accelerometer to count shakes. No internet, no login, no account.
 
 ## What it does
 
-- **Home screen:** live clock, alarm time picker, set / cancel alarm.
+- **Home screen (Samsung Clock style, v1.1):** light pastel gradient,
+  big soft-grey time in a white rounded card, "All alarms are off" /
+  "Alarm set for 7:00 a.m." status line, days row.
+- **Voice (v1.1): MALE.** The insults are spoken with a male English voice
+  (picked from the phone's installed voices, pitch deepened a little).
+  **Test male voice** button speaks one insult so you can hear it now —
+  the screen also shows which voice it picked.
+- **Set alarm (v1.1 fix):** one tap — pick the time, it schedules
+  immediately, and the screen says "Alarm set for 7:00 a.m." (or exactly
+  why it failed, e.g. exact-alarm permission not granted). v1 split this
+  across two buttons with no feedback, so a missing permission looked
+  like a dead button.
 - **TEST ALARM NOW button:** fires the alarm immediately so you can test
   shake-to-stop without waiting until morning.
-- **Alarm screen:** full-screen dark, huge insult text, shake progress bar,
+- **Alarm screen:** light pastel, huge insult text, shake progress bar,
   `SHAKES: n / 20`.
 - **Insults:** 91 insults supplied by John, used exactly as written. They are
   dealt from a shuffled deck — no repeats until all 91 have been used — and a
@@ -48,7 +59,7 @@ Local (same pattern as the TapTalk manual build on this VM):
 
 ```bash
 ./manual-build.sh
-# -> rude-awakening-native-v1.apk (debug-signed, apksigner verified)
+# -> rude-awakening-native-v2.apk (debug-signed, apksigner verified)
 ```
 
 GitHub Actions (`.github/workflows/build-apk.yml`) runs the same script:

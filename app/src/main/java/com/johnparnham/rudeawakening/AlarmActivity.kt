@@ -14,7 +14,6 @@ import android.view.WindowManager
 import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
-import java.util.Locale
 
 class AlarmActivity : Activity() {
 
@@ -58,9 +57,9 @@ class AlarmActivity : Activity() {
 
         tts = TextToSpeech(this) { status ->
             if (status == TextToSpeech.SUCCESS) {
-                tts?.language = Locale.US
-                tts?.setSpeechRate(1.1f)
-                tts?.setPitch(0.9f)
+                // Male voice (v2): v1 used the phone default, which was female.
+                val voiceName = VoiceHelper.applyMaleVoice(tts!!)
+                try { findViewById<TextView>(R.id.voiceText).text = "Voice: $voiceName" } catch (e: Exception) { }
                 showNextInsult()
             }
         }

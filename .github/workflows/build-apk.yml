@@ -8,10 +8,10 @@ jobs:
   build-apk:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           java-version: "17"
           distribution: temurin
@@ -27,8 +27,11 @@ jobs:
           $HOME/android-sdk/cmdline-tools/latest/bin/sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
 
       - name: Install Kotlin compiler
+        # Unzip into /tmp first: unzipping in $HOME then `mv kotlinc $HOME/kotlinc`
+        # fails with "cannot move 'kotlinc' to a subdirectory of itself".
         run: |
-          cd $HOME
+          mkdir -p /tmp/kotlinc-dl
+          cd /tmp/kotlinc-dl
           curl -sL -o kotlin.zip https://github.com/JetBrains/kotlin/releases/download/v1.9.24/kotlin-compiler-1.9.24.zip
           unzip -q kotlin.zip
           mv kotlinc $HOME/kotlinc
@@ -46,5 +49,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: rude-awakening-apk
-          path: rude-awakening-native-v1.apk
+          path: rude-awakening-native-v2.apk
           retention-days: 30
