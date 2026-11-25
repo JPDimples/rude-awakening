@@ -1,0 +1,20 @@
+[project]
+name = "rude-awakening"
+version = "1.0.0"
+description = "An alarm clock that yells insults until you shake it awake"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "flet==1.1.3",
+    "flet-audio==1.1.3",
+]
+
+[tool.flet.app]
+path = "src"
+exclude = ["tools", "tests", ".venv"]
+
+[tool.flet]
+product = "Rude Awakening"
+org = "com.johnparnham"
+bundle_id = "com.johnparnham.rudeawakening"
+build_number = 1
+icon_background = "#000000"
