@@ -13,12 +13,16 @@ import android.view.WindowManager
 import android.widget.Button
 import android.widget.ProgressBar
 import android.widget.TextView
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 class AlarmActivity : Activity() {
 
     private lateinit var insultText: TextView
     private lateinit var shakesText: TextView
     private lateinit var shakeProgress: ProgressBar
+    private lateinit var digitalClockText: TextView
 
     private var sensorManager: SensorManager? = null
     private var shakeDetector: ShakeDetector? = null
@@ -37,6 +41,16 @@ class AlarmActivity : Activity() {
         }
     }
 
+    // v1.7: digital alarm-clock readout — the live time, ticking seconds.
+    private val clockRunnable = object : Runnable {
+        override fun run() {
+            if (finished) return
+            digitalClockText.text =
+                SimpleDateFormat("h:mm:ss a", Locale.getDefault()).format(Date())
+            handler.postDelayed(this, 1000)
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setShowWhenLocked(true)
@@ -49,6 +63,7 @@ class AlarmActivity : Activity() {
         insultText = findViewById(R.id.insultText)
         shakesText = findViewById(R.id.shakesText)
         shakeProgress = findViewById(R.id.shakeProgress)
+        digitalClockText = findViewById(R.id.digitalClockText)
 
         shakesRequired = AlarmStore.getShakesRequired(this)
         shakeProgress.max = shakesRequired
@@ -60,6 +75,8 @@ class AlarmActivity : Activity() {
         BackgroundHelper.apply(this, findViewById(R.id.rootLayout))
         findViewById<TextView>(R.id.wakeUpText)
             .setTextColor(BackgroundHelper.accentColor(this))
+        digitalClockText.setTextColor(BackgroundHelper.accentColor(this))
+        handler.post(clockRunnable)
         findViewById<ProgressBar>(R.id.shakeProgress).progressTintList =
             android.content.res.ColorStateList.valueOf(BackgroundHelper.accentColor(this))
         MetalPlayer.play(this, AlarmStore.getMetalClip(this))
@@ -81,6 +98,7 @@ class AlarmActivity : Activity() {
     override fun onDestroy() {
         finished = true
         handler.removeCallbacks(insultRunnable)
+        handler.removeCallbacks(clockRunnable)
         try { sensorManager?.let { ShakeDetector.unregister(it, shakeDetector!!) } } catch (e: Exception) { }
         MetalPlayer.stop()
         super.onDestroy()
@@ -148,6 +166,7 @@ class AlarmActivity : Activity() {
         if (finished) return
         finished = true
         handler.removeCallbacks(insultRunnable)
+        handler.removeCallbacks(clockRunnable)
         MetalPlayer.stop()
         AlarmService.stop(this)
         AlarmStore.resetShakes(this)

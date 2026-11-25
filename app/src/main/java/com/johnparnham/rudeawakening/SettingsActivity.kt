@@ -5,11 +5,9 @@ import android.app.AlertDialog
 import android.content.Intent
 import android.os.Bundle
 import android.view.View
-import android.view.ViewGroup
-import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.EditText
-import android.widget.ListView
+import android.widget.LinearLayout
 import android.widget.TextView
 import android.widget.Toast
 
@@ -20,7 +18,7 @@ import android.widget.Toast
  */
 class SettingsActivity : Activity() {
 
-    private lateinit var soundListView: ListView
+    private lateinit var soundListContainer: LinearLayout
     private lateinit var selectedSoundText: TextView
     private lateinit var nameButton: Button
     private lateinit var backgroundButton: Button
@@ -36,7 +34,7 @@ class SettingsActivity : Activity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_settings)
 
-        soundListView = findViewById(R.id.soundListView)
+        soundListContainer = findViewById(R.id.soundListContainer)
         selectedSoundText = findViewById(R.id.selectedSoundText)
         nameButton = findViewById(R.id.nameButton)
         backgroundButton = findViewById(R.id.backgroundButton)
@@ -46,22 +44,6 @@ class SettingsActivity : Activity() {
         clips = MetalPlayer.loadClips(this)
         showSoundList()
         refreshButtons()
-
-        soundListView.setOnItemClickListener { _, _, position, _ ->
-            if (position == 0) {
-                AlarmStore.setMetalClip(this, MetalPlayer.SHUFFLE)
-                MetalPlayer.play(this, MetalPlayer.SHUFFLE)
-                selectedSoundText.text = "Sound: Shuffle all metal"
-                Toast.makeText(this, "Sound saved: Shuffle all metal", Toast.LENGTH_SHORT).show()
-            } else {
-                val clip = clips[position - 1]
-                AlarmStore.setMetalClip(this, clip.file)
-                MetalPlayer.play(this, clip.file)
-                selectedSoundText.text = "Sound: ${clip.title} — ${clip.creator}"
-                Toast.makeText(this, "Sound saved: ${clip.title}", Toast.LENGTH_SHORT).show()
-            }
-            showSoundList()
-        }
 
         nameButton.setOnClickListener { showNameDialog() }
         backgroundButton.setOnClickListener { showBackgroundDialog() }
@@ -106,26 +88,49 @@ class SettingsActivity : Activity() {
         }
     }
 
+    // v1.7: the sound list is plain rows inside the page's ScrollView, so
+    // the whole Customize page scrolls as one — the old fixed-height
+    // ListView trapped the clips in a 220dp box and cut the 5th row off.
     private fun showSoundList() {
         val saved = AlarmStore.getMetalClip(this)
-        val names = mutableListOf<String>()
-        names.add(if (saved == MetalPlayer.SHUFFLE) "✓ Shuffle all metal" else "Shuffle all metal")
-        for (clip in clips) {
-            val mark = if (clip.file == saved) "✓ " else ""
-            names.add("$mark${clip.title} — ${clip.creator}")
-        }
-        // Recolor list rows so they stay readable on dark backgrounds too.
-        soundListView.setBackgroundResource(BackgroundHelper.cardRes(this))
-        soundListView.adapter =
-            object : ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, names) {
-                override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
-                    val v = super.getView(position, convertView, parent)
-                    (v as? TextView)?.setTextColor(
-                        BackgroundHelper.textColor(this@SettingsActivity)
-                    )
-                    return v
-                }
+        soundListContainer.removeAllViews()
+        soundListContainer.setBackgroundResource(BackgroundHelper.cardRes(this))
+        val textColor = BackgroundHelper.textColor(this)
+
+        fun addRow(label: String, isSaved: Boolean, onTap: () -> Unit) {
+            val row = TextView(this).apply {
+                text = (if (isSaved) "✓ " else "") + label
+                textSize = 16f
+                setTextColor(textColor)
+                setPadding(48, 36, 48, 36)
+                setOnClickListener { onTap() }
             }
+            soundListContainer.addView(row)
+            val divider = View(this).apply {
+                layoutParams = LinearLayout.LayoutParams(
+                    LinearLayout.LayoutParams.MATCH_PARENT, 2
+                )
+                setBackgroundColor(0xFFD8D8E0.toInt())
+            }
+            soundListContainer.addView(divider)
+        }
+
+        addRow("Shuffle all metal", saved == MetalPlayer.SHUFFLE) {
+            AlarmStore.setMetalClip(this, MetalPlayer.SHUFFLE)
+            MetalPlayer.play(this, MetalPlayer.SHUFFLE)
+            selectedSoundText.text = "Sound: Shuffle all metal"
+            Toast.makeText(this, "Sound saved: Shuffle all metal", Toast.LENGTH_SHORT).show()
+            showSoundList()
+        }
+        for (clip in clips) {
+            addRow("${clip.title} — ${clip.creator}", clip.file == saved) {
+                AlarmStore.setMetalClip(this, clip.file)
+                MetalPlayer.play(this, clip.file)
+                selectedSoundText.text = "Sound: ${clip.title} — ${clip.creator}"
+                Toast.makeText(this, "Sound saved: ${clip.title}", Toast.LENGTH_SHORT).show()
+                showSoundList()
+            }
+        }
         val savedTitle = if (saved == MetalPlayer.SHUFFLE) "Shuffle all metal"
             else clips.firstOrNull { it.file == saved }?.title ?: saved
         selectedSoundText.text = "Sound: $savedTitle"

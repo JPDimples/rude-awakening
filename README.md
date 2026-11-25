@@ -71,7 +71,7 @@ Local (same pattern as the TapTalk manual build on this VM):
 
 ```bash
 ./manual-build.sh
-# -> rude-awakening-native-v6.apk (debug-signed, apksigner verified)
+# -> rude-awakening-native-v7.apk (debug-signed, apksigner verified)
 ```
 
 GitHub Actions (`.github/workflows/build-apk.yml`) runs the same script:
@@ -80,6 +80,21 @@ Kotlin 1.9.24, then runs `./manual-build.sh` and uploads the APK.
 
 ## History
 
+- **v1.7 (2026-11-25): fix cut-off alarm card, scrollable sound list, pill
+  3D buttons, digital alarm clock.** John sent screenshots: the alarm
+  card was cut off (the ON button sliced in half, days text missing) and
+  the sound list was cut off mid-row. Root cause: the alarm list lived in
+  a small weighted ScrollView viewport that couldn't fit one card at his
+  font size, and the sound list was a fixed 220dp ListView trapped inside
+  the page's ScrollView. Fixes: the whole home screen is now one
+  ScrollView (the page scrolls, nothing is trapped in a small viewport),
+  alarm cards are two rows (time + ON/✕ on top, days underneath) at 32sp
+  with a 96dp minimum height, and the sound list is plain rows inside the
+  Customize page's ScrollView, so all 10 clips scroll with the page.
+  Buttons are now pill-shaped and 3D (layer-list: shadow strip, darker
+  edge, amber/steel face, 28dp radius). The ringing screen has a live
+  digital clock — the current time in big monospace amber with ticking
+  seconds above WAKE UP!.
 - **v1.6 (2026-11-25): 10 metal clips, 3 new backgrounds, alarm stream.**
   5 more royalty-free metal clips (Metal Child, So Metal It Hurts, True
   Metal Awaits, Death Metal Tango, Long Live Heavy Metal — CC BY / CC

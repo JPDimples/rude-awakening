@@ -2,57 +2,57 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:orientation="horizontal"
+    android:orientation="vertical"
     android:background="@drawable/card_bg"
-    android:padding="20dp"
+    android:padding="16dp"
+    android:minHeight="96dp"
     android:layout_marginTop="12dp">
 
     <LinearLayout
-        android:layout_width="0dp"
-        android:layout_weight="1"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical">
+        android:orientation="horizontal">
 
         <TextView
             android:id="@+id/cardTimeText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:gravity="center_vertical"
             android:text="7:00 a.m."
-            android:textSize="40sp"
+            android:textSize="32sp"
             android:textColor="#9A9AB0"
             android:textStyle="bold"
             android:typeface="monospace" />
 
-        <TextView
-            android:id="@+id/cardDaysText"
+        <Button
+            android:id="@+id/cardToggle"
+            android:layout_width="64dp"
+            android:layout_height="48dp"
+            android:text="ON"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#111111"
+            android:background="@drawable/button_primary" />
+
+        <Button
+            android:id="@+id/cardDeleteButton"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Every day"
-            android:textSize="14sp"
-            android:textColor="#8A8A9A"
-            android:layout_marginTop="4dp" />
+            android:layout_height="48dp"
+            android:text="✕"
+            android:textSize="18sp"
+            android:textColor="#B0B0C0"
+            android:background="@android:color/transparent" />
 
     </LinearLayout>
 
-    <Button
-        android:id="@+id/cardToggle"
-        android:layout_width="64dp"
-        android:layout_height="48dp"
-        android:text="ON"
-        android:textSize="16sp"
-        android:textStyle="bold"
-        android:textColor="#111111"
-        android:background="@drawable/button_primary"
-        android:layout_gravity="center_vertical" />
-
-    <Button
-        android:id="@+id/cardDeleteButton"
+    <TextView
+        android:id="@+id/cardDaysText"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="✕"
-        android:textSize="18sp"
-        android:textColor="#B0B0C0"
-        android:background="@android:color/transparent"
-        android:layout_gravity="center_vertical" />
+        android:text="Every day"
+        android:textSize="14sp"
+        android:textColor="#8A8A9A"
+        android:layout_marginTop="6dp" />
 
 </LinearLayout>
