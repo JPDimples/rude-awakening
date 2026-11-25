@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<gradient xmlns:android="http://schemas.android.com/apk/res/android"
-    android:startColor="#FFF6F4"
-    android:centerColor="#F6F1FF"
-    android:endColor="#E9F3FF"
-    android:angle="135"
-    android:type="linear" />
+<!-- NOTE: the root MUST be <shape> — a bare <gradient> root compiles fine
+     in aapt2 but crashes at runtime ("invalid drawable tag gradient") the
+     instant the app starts, because this file is also the windowBackground.
+     That is what broke v1.1 on launch. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <gradient
+        android:startColor="#FFF6F4"
+        android:centerColor="#F6F1FF"
+        android:endColor="#E9F3FF"
+        android:angle="135"
+        android:type="linear" />
+</shape>

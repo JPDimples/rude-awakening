@@ -37,17 +37,19 @@ jobs:
           mv kotlinc $HOME/kotlinc
 
       - name: Build APK (manual aapt2 + kotlinc + d8)
-        env:
-          ANDROID_SDK_ROOT: $HOME/android-sdk
-          KOTLINC_BIN: $HOME/kotlinc/bin/kotlinc
-          KOTLIN_STDLIB: $HOME/kotlinc/lib/kotlin-stdlib.jar
+        # NOTE: $HOME must be expanded by the shell here. Putting it in the
+        # env: mapping passes the literal string "$HOME/android-sdk", and the
+        # script then looks for a directory literally named $HOME (exit 127).
         run: |
           chmod +x manual-build.sh
+          export ANDROID_SDK_ROOT="$HOME/android-sdk"
+          export KOTLINC_BIN="$HOME/kotlinc/bin/kotlinc"
+          export KOTLIN_STDLIB="$HOME/kotlinc/lib/kotlin-stdlib.jar"
           ./manual-build.sh
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: rude-awakening-apk
-          path: rude-awakening-native-v2.apk
+          path: rude-awakening-native-v2.1.apk
           retention-days: 30

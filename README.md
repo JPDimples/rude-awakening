@@ -59,7 +59,7 @@ Local (same pattern as the TapTalk manual build on this VM):
 
 ```bash
 ./manual-build.sh
-# -> rude-awakening-native-v2.apk (debug-signed, apksigner verified)
+# -> rude-awakening-native-v2.1.apk (debug-signed, apksigner verified)
 ```
 
 GitHub Actions (`.github/workflows/build-apk.yml`) runs the same script:
@@ -68,6 +68,16 @@ Kotlin 1.9.24, then runs `./manual-build.sh` and uploads the APK.
 
 ## History
 
+- **v1.2 crash fix (2026-11-25):** v1.1 would not open at all. Cause: the
+  pastel background file used a bare `<gradient>` as its root element.
+  That compiles fine in aapt2 but Android cannot inflate it as a drawable,
+  and since it was also the theme's `windowBackground` the app crashed
+  before any screen appeared. Fixed by wrapping the gradient in a
+  `<shape>`. Lesson: drawable files must have a `<shape>` (or selector /
+  layer-list) root — aapt2 will not catch a bad root tag. The GitHub
+  Actions build was also fixed: `$HOME` in the workflow's `env:` mapping
+  is passed literally, so the build script looked for a folder literally
+  named `$HOME` (exit 127) — the paths are now exported in the shell.
 - `flet-v1` branch: the earlier Python + Flet version, preserved as-is,
   including its 91 pre-generated voice MP3s. The native version replaces
   those with live Android TextToSpeech.
